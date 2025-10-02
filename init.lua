@@ -17,9 +17,9 @@ TODO:
   [x] persistent undo/redo
   [x] NERDTree or similar
   [x] surround
-  [ ] convenient way to close quickfix and location lists
   [x] show error message without :lopen
-  [ ] Tpope's fugitive or similar
+  [x] Tpope's fugitive or similar
   [ ] work with encrypted files
   [ ] go through old Vim config an port remaining stuff
+  [ ] add AI-based completions?
 --]]
