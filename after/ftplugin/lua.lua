@@ -1,5 +1,14 @@
-vim.opt_local.shiftwidth = 2
+local set = vim.opt_local
 
-vim.keymap.set("n", "<leader><leader>x", "<cmd>source %<CR>")
-vim.keymap.set("n", "<leader>x", ":.lua<CR>")
-vim.keymap.set("v", "<leader>x", ":lua<CR>")
+set.shiftwidth = 2
+
+
+local function map(mode, l, r, opts)
+  opts = opts or {}
+  opts.buffer = 0 -- current buffer
+  vim.keymap.set(mode, l, r, opts)
+end
+
+map("n", "<leader><leader>x", "<cmd>source %<CR>", { desc = 'Source this file' })
+map("n", "<leader>x", ":.lua<CR>", { desc = 'Lua this line' })
+map("v", "<leader>x", ":lua<CR>", { desc = 'Lua selected lines' })
