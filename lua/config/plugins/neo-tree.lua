@@ -12,7 +12,7 @@ return {
   lazy = false,
   keys = {
     { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
-    { '<F12>', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '<F12>', ':Neotree show toggle<CR>', desc = 'NeoTree toggle', silent = true },
     --{ '<leader>s', ':Neotree float git_status<CR>', desc = 'NeoTree git status', silent = true },
   },
   opts = {
