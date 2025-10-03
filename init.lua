@@ -19,6 +19,8 @@ TODO:
   [x] surround
   [x] show error message without :lopen
   [x] Tpope's fugitive or similar
+  [x] Copy/paste via SSH
+  [ ] Undo-tree
   [ ] work with encrypted files
   [ ] go through old Vim config an port remaining stuff
   [ ] add AI-based completions?
