@@ -22,6 +22,6 @@ TODO:
   [x] Copy/paste via SSH
   [x] Undo-tree
   [x] work with encrypted files
-  [ ] go through old Vim config an port remaining stuff
+  [ ] go through old Vim config and port remaining stuff
   [ ] add AI-based completions?
 --]]
