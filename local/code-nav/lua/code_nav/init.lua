@@ -98,7 +98,8 @@ local function move_to_node_start(node)
     end
   end
   local row, col = target:range()
-  vim.api.nvim_win_set_cursor(0, { row + 1, col })
+  local cmd = string.format('normal! %dG%d|', row + 1, col + 1)
+  vim.cmd(cmd)
   vim.cmd("normal! zv")
 end
 
