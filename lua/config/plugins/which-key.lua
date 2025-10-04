@@ -49,6 +49,7 @@ return {
         { '<leader>f', group = '[F]ind (Telescope)' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>o', group = '[O]penCode', mode = { 'n', 'v' } },
         { 'gr', group = 'LSP functions' },
       },
     },
