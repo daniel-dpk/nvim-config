@@ -29,5 +29,4 @@ TODO:
   [x] toggle spell
   [ ] vim-test
   [ ] go through old Vim config and port remaining stuff
-  [ ] add AI-based completions?
 --]]
