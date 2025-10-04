@@ -7,6 +7,7 @@ local M = {
     "function_definition",
     "async_function_definition",
     "class_definition",
+    "decorated_definition",
   },
 
   -- Lua (tree-sitter-lua) — there’s no classes; functions come in 2 flavors

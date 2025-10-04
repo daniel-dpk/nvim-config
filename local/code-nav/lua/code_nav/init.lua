@@ -56,17 +56,31 @@ end
 local function find_current_index(items, row)
   for i, node in ipairs(items) do
     local sr, sc, er, _ = node:range()
-    if row >= sr and row <= er then return i, sr, sc end
+    local definition = node:field("definition")
+    local def = definition and definition[1]
+    local def_sr, def_sc
+    if def then
+      def_sr, def_sc = def:range()
+    end
+    if row >= sr and row <= er then return i, sr, sc, def_sr, def_sc end
   end
   return nil
 end
 
 local function resolve_scope(node, root, wanted)
   local scope = node
-  while scope and scope ~= root do
+  while scope do
+    if scope == root then break end
+
     local items = collect_items_in_scope(scope, wanted)
-    if #items > 0 then return scope, items end
-    scope = scope:parent()
+    if #items > 0 then
+      if scope:type() ~= 'decorated_definition' then
+        return scope, items
+      end
+      scope = scope:parent()
+    else
+      scope = scope:parent()
+    end
   end
 
   local root_items = collect_items_in_scope(root, wanted)
@@ -76,6 +90,13 @@ end
 local function move_to_node_start(node)
   local name = node:field("name")
   local target = (name and name[1]) and name[1] or node
+  if target == node then
+    local definition = node:field("definition")
+    if definition and definition[1] then
+      local def_name = definition[1]:field("name")
+      target = (def_name and def_name[1]) and def_name[1] or definition[1]
+    end
+  end
   local row, col = target:range()
   vim.api.nvim_win_set_cursor(0, { row + 1, col })
   vim.cmd("normal! zv")
@@ -108,9 +129,17 @@ function M.jump(direction, level)
   local crow, ccol = unpack(vim.api.nvim_win_get_cursor(0))
   crow = crow - 1
 
-  local current_idx, current_start, current_start_col = find_current_index(items, crow)
+  local current_idx, node_start_row, node_start_col, def_start_row, def_start_col = find_current_index(items, crow)
+  local effective_start_row = def_start_row or node_start_row
+  local effective_start_col = def_start_col or node_start_col
   local cmp_col = ccol
-  if current_idx and crow == current_start then cmp_col = current_start_col end
+  if current_idx then
+    if def_start_row and crow == def_start_row then
+      cmp_col = def_start_col
+    elseif node_start_row and crow == node_start_row then
+      cmp_col = node_start_col
+    end
+  end
   local idx
   if direction == "next" then
     if current_idx and current_idx < #items then
@@ -124,7 +153,7 @@ function M.jump(direction, level)
     end
   else
     if current_idx then
-      if crow > current_start then
+      if crow > effective_start_row then
         idx = current_idx
       elseif current_idx > 1 then
         idx = current_idx - 1
