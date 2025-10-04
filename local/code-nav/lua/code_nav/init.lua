@@ -61,6 +61,18 @@ local function find_current_index(items, row)
   return nil
 end
 
+local function resolve_scope(node, root, wanted)
+  local scope = node
+  while scope and scope ~= root do
+    local items = collect_items_in_scope(scope, wanted)
+    if #items > 0 then return scope, items end
+    scope = scope:parent()
+  end
+
+  local root_items = collect_items_in_scope(root, wanted)
+  return root, root_items
+end
+
 local function move_to_node_start(node)
   local name = node:field("name")
   local target = (name and name[1]) and name[1] or node
@@ -81,14 +93,16 @@ function M.jump(direction, level)
   if #wanted == 0 then return end
 
   local scope
+  local items
   if level == "top" then
     scope = root
+    items = collect_items_in_scope(scope, wanted)
   else
     local node = get_node_at_cursor()
-    scope = (node and node:parent()) or root
+    scope, items = resolve_scope(node, root, wanted)
   end
 
-  local items = collect_items_in_scope(scope, wanted)
+  if not items then items = collect_items_in_scope(scope, wanted) end
   if #items == 0 then return end
 
   local crow, ccol = unpack(vim.api.nvim_win_get_cursor(0))
