@@ -183,10 +183,10 @@ function M.attach(bufnr)
 
   -- Visual mode: restore selection after jump
   local vopts = { buffer = bufnr, silent = true }
-  vim.keymap.set("x", same.prev, function() M.jump("prev", "same"); vim.cmd("normal! gv") end, vopts)
-  vim.keymap.set("x", same.next, function() M.jump("next", "same"); vim.cmd("normal! gv") end, vopts)
-  vim.keymap.set("x", top.prev,  function() M.jump("prev", "top");  vim.cmd("normal! gv") end, vopts)
-  vim.keymap.set("x", top.next,  function() M.jump("next", "top");  vim.cmd("normal! gv") end, vopts)
+  vim.keymap.set("x", same.prev, function() M.jump("prev", "same"); vim.cmd("redraw") end, vopts)
+  vim.keymap.set("x", same.next, function() M.jump("next", "same"); vim.cmd("redraw") end, vopts)
+  vim.keymap.set("x", top.prev,  function() M.jump("prev", "top");  vim.cmd("redraw") end, vopts)
+  vim.keymap.set("x", top.next,  function() M.jump("next", "top");  vim.cmd("redraw") end, vopts)
 end
 
 function M.setup(opts)
