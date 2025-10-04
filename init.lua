@@ -22,6 +22,12 @@ TODO:
   [x] Copy/paste via SSH
   [x] Undo-tree
   [x] work with encrypted files
+  [ ] swap two windows
+  [ ] Python LSP does not know how to format code; also, no code actions
+  [ ] move between instance methods and classes/functions
+  [ ] snippets
+  [x] toggle spell
+  [ ] vim-test
   [ ] go through old Vim config and port remaining stuff
   [ ] add AI-based completions?
 --]]
