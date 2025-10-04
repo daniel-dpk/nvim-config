@@ -1,17 +1,37 @@
-# AGENTS.md
+# Repository Guidelines
 
-**Purpose**: Modern Neovim config in Lua using lazy.nvim for IDE‑like experience.
+## Important note for coding agents
+**Always** use relative paths for all tool calls.
 
-**Structure**: init.lua loads `config.lazy`, `options`, `keymaps`; plugins reside in `lua/config/plugins/*.lua`; ftplugins in `after/`.
+## Purpose
+Modern Neovim config in Lua using lazy.nvim for IDE‑like experience.
 
-**Style**: 2‑space indent, single‑quote strings, `vim.o`/`vim.opt` for options, `vim.g` for globals. Modules return a table (`return { … }`). Require modules with dot notation.
+## Structure
+- `init.lua` loads `config.lazy`, `options`, `keymaps`
+- the `./lua/` directory is added to the Lua search path by Neovim, so that, e.g., `require('config.lazy')` loads `./lua/config/lazy.lua`
+- plugins reside in `lua/config/plugins/*.lua` and are configured to be loaded by `lazy.lua`
+- ftplugins, syntax, etc., in `after/` extend the default settings
 
-**Naming**: Files & dirs snake_case; variables & functions lower_snake_case; globals `vim.g.<name>`.
+## Style
+- 2‑space indent
+- single‑quote strings
+- prefer Lua over vimscript, also in mappings
+- `vim.o`/`vim.opt` for options
+- `vim.g` for globals
+- modules return a table (`return { … }`)
+- require modules with dot notation
 
-**Keymaps**: `vim.keymap.set(mode, lhs, rhs, { desc = '…' })`.
+## Naming
+- files & dirs snake_case
+- variables & functions lower_snake_case
+- globals `vim.g.<name>`
 
-**Plugin specs**: `{ 'author/plugin', event = 'VimEnter', opts = { … }, keys = { … } }`.
+## Keymaps
+- `vim.keymap.set(mode, lhs, rhs, { desc = '…' })`
+- description is important for `which-key`, it should be concise since it is shown in `which-key` popup tables
+- as noted above, implement `rhs` via Lua if it makes sense (exceptions to this rule are OK, such as many mappings in `lua/keymaps.lua`)
 
-**Formatting**: Blank line between sections, trailing commas in tables, ≤80 chars per line.
-
-**Best practices**: Keep plugins under `lua/config/plugins/`; disable lazy change detection (`change_detection.enabled = false`); bootstrap lazy via git clone in `config.lazy`.
+## Formatting
+- blank line between sections
+- trailing commas in tables
+- ≤80 chars per line
