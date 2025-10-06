@@ -7,6 +7,10 @@ require('config.lazy')
 require('options')
 require('keymaps')
 
+-- Load untracked extra configuration in, e.g.,
+--  ./lua/custom/init.lua
+pcall(require, 'custom')
+
 --[[
 TODO:
   [x] turn off auto-detect of config changes
