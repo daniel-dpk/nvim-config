@@ -50,10 +50,10 @@ local function nav(cmd)
     vim.notify(err, vim.log.levels.ERROR)
   end
 end
-vim.keymap.set("n", "<C-n>", function() nav(vim.cmd.cnext) end, { desc = "Next Quickfix" })
-vim.keymap.set("n", "<C-S-n>", function() nav(vim.cmd.cprev) end, { desc = "Previous Quickfix" })
-vim.keymap.set("n", "<C-m>", function() nav(vim.cmd.lnext) end, { desc = "Next Location" })
-vim.keymap.set("n", "<C-S-m>", function() nav(vim.cmd.lprev) end, { desc = "Previous Location" })
+vim.keymap.set("n", "<C-S-j>", function() nav(vim.cmd.cnext) end, { desc = "Next Quickfix" })
+vim.keymap.set("n", "<C-S-k>", function() nav(vim.cmd.cprev) end, { desc = "Previous Quickfix" })
+vim.keymap.set("n", "<A-S-j>", function() nav(vim.cmd.lnext) end, { desc = "Next Location" })
+vim.keymap.set("n", "<A-S-k>", function() nav(vim.cmd.lprev) end, { desc = "Previous Location" })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
