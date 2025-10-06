@@ -26,9 +26,17 @@ TODO:
   [x] Copy/paste via SSH
   [x] Undo-tree
   [x] work with encrypted files
+  [x] Python LSP does not know how to format code; also, no code actions
+  [x] modify hybrid colorscheme to clearly show statusline and window borders
+  [ ] toggle which-key
+  [ ] toggle suggestions
+  [ ] map h/j/k/l for wrapped lines
+  [ ] make OpenCode window less wide
+  [ ] ftplugin `opencode_terminal`:
+      [x] make <C-h>/<C-l> work
+      [ ] make scrolling work
   [ ] swap two windows
-  [ ] Python LSP does not know how to format code; also, no code actions
-  [ ] move between instance methods and classes/functions
+  [x] move between instance methods and classes/functions
   [ ] snippets
   [x] toggle spell
   [ ] vim-test
