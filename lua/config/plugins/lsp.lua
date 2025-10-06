@@ -15,14 +15,13 @@ return {
       },
     },
     config = function()
-      vim.lsp.enable('pyright')
-      vim.lsp.enable('lua_ls')
-
+      -- [[ General config ]]
       vim.diagnostic.config({
         severity_sort = true,
         virtual_text = true,
       })
 
+      -- [[ Key maps ]]
       vim.keymap.set("n", "<localleader>d", function()
         vim.diagnostic.enable(not vim.diagnostic.is_enabled())
       end, { desc = 'Toggle [d]iagnostics' })
@@ -46,6 +45,50 @@ return {
         vim.lsp.buf.format({ async = false })
         vim.api.nvim_input("<Esc>")
       end, { desc = '[F]ormat selection' })
+
+      -- [[ Configure servers ]]
+      -- Common on_attach callback
+      ---@diagnostic disable-next-line: unused-local
+      local function on_attach(client, bufnr)
+        local map = function(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+        end
+        map("n", "grd", vim.lsp.buf.definition, 'Jump to [D]efinition')
+        map("n", "grs", function()
+          print(vim.inspect(vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })))
+        end, '[S]how diagnostic under cursor')
+      end
+
+      -- Individual configs
+      local orig_on_attach = vim.lsp.config.pyright.on_attach
+      vim.lsp.config("pyright", {
+        on_attach = function(client, bufnr)
+          if orig_on_attach then orig_on_attach(client, bufnr) end
+          on_attach(client, bufnr)
+        end,
+        settings = {
+          pyright = { disableOrganizeImports = true },
+        },
+      })
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client == nil then
+            return
+          end
+          if client.name == 'ruff' then
+            -- Disable hover in favor of Pyright
+            client.server_capabilities.hoverProvider = false
+          end
+        end,
+        desc = 'LSP: Disable hover capability from Ruff',
+      })
+
+      -- [[ Enable servers ]]
+      vim.lsp.enable({ 'pyright', 'ruff' })
+      vim.lsp.enable('lua_ls')
     end,
   }
 }
