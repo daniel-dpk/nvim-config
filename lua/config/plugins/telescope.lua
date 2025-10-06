@@ -25,8 +25,8 @@ return {
     vim.keymap.set('n', '<leader>fr', builtin.lsp_references, { desc = 'Telescope references (LSP)' })
 
     -- Edit Neovim config
-    vim.keymap.set('n', '<leader>en', function()
+    vim.keymap.set('n', '<leader>fn', function()
       builtin.find_files { cwd = vim.fn.stdpath('config') }
-    end, { desc = 'Telescope Neovim files' })
+    end, { desc = 'Telescope [N]eovim files' })
   end
 }

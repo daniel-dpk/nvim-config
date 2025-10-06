@@ -25,11 +25,11 @@ return {
 
       vim.keymap.set("n", "<localleader>d", function()
         vim.diagnostic.enable(not vim.diagnostic.is_enabled())
-      end, { desc = 'Toggle diagnostics' })
+      end, { desc = 'Toggle [d]iagnostics' })
 
       vim.keymap.set("n", "<localleader>F", function()
         vim.lsp.buf.format({ async = false })
-      end, { desc = 'Format whole file' })
+      end, { desc = '[F]ormat whole file' })
 
       vim.keymap.set("n", "<localleader>f", function()
         local line = vim.api.nvim_win_get_cursor(0)[1]
@@ -40,12 +40,12 @@ return {
             ["end"] = { line, vim.v.maxcol },
           },
         })
-      end, { desc = 'Format current line' })
+      end, { desc = '[F]ormat current line' })
 
       vim.keymap.set("v", "<localleader>f", function()
         vim.lsp.buf.format({ async = false })
         vim.api.nvim_input("<Esc>")
-      end, { desc = 'Format selection' })
+      end, { desc = '[F]ormat selection' })
     end,
   }
 }
@@ -56,4 +56,6 @@ return {
 --  * gri: implementation
 --  * grn: rename
 --  * gra: code actions (e.g., disable certain diagnostics)
+--  * grt: go to type definition
+--  * grd: go to definition
 --  * CTRL-S: signature help (insert mode)
