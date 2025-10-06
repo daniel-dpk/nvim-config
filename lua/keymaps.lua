@@ -41,6 +41,20 @@ vim.keymap.set('n', 'tt', ':tab split<CR>', { desc = 'New tab' })
 -- " Close current tab leaving us on previous tab (instead of next).
 vim.keymap.set('n', 'TT', ':silent! tabmove -1<CR>:tabclose<CR>', { desc = 'Close tab' })
 
+-- Navigate quickfix and location lists
+local function nav(cmd)
+  local success, err = pcall(cmd)
+  if success then
+    vim.api.nvim_echo({}, false, {})
+  else
+    vim.notify(err, vim.log.levels.ERROR)
+  end
+end
+vim.keymap.set("n", "<C-n>", function() nav(vim.cmd.cnext) end, { desc = "Next Quickfix" })
+vim.keymap.set("n", "<C-S-n>", function() nav(vim.cmd.cprev) end, { desc = "Previous Quickfix" })
+vim.keymap.set("n", "<C-m>", function() nav(vim.cmd.lnext) end, { desc = "Next Location" })
+vim.keymap.set("n", "<C-S-m>", function() nav(vim.cmd.lprev) end, { desc = "Previous Location" })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
