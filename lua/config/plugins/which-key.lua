@@ -67,6 +67,11 @@ return {
         end,
         desc = "Buffer Local Keymaps (which-key)",
       },
+      {
+        "<leader>tw",
+        require('utils.whichkey_toggle').toggle,
+        desc = '[T]oggle [W]hich-key',
+      }
     },
   },
 }

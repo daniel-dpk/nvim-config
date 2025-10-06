@@ -29,7 +29,7 @@ TODO:
   [x] Python LSP does not know how to format code; also, no code actions
   [x] modify hybrid colorscheme to clearly show statusline and window borders
   [x] press 'o' in loclist/qfixlist to "view" place (stay in list)
-  [ ] toggle which-key
+  [x] toggle which-key
   [ ] toggle suggestions
   [x] map h/j/k/l for wrapped lines
   [ ] make OpenCode window less wide
