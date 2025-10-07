@@ -13,7 +13,7 @@ return {
     "HoNamDuong/hybrid.nvim",
     config = function()
       vim.cmd.colorscheme("hybrid")
-      require('config.color_overrides')
+      require('utils.color_overrides')
     end
   },
 }
