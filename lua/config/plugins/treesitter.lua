@@ -9,10 +9,14 @@ return {
       require('nvim-treesitter.configs').setup {
         -- A list of parser names, or "all" (the listed parsers MUST always be installed)
         ensure_installed = {
-          "c", "cpp", "python", "bash",
-          "perl", "php", "gap",
+          "c", "cpp", "python", "requirements", "make", "cmake",
+          "bash", "tmux", "ssh_config",
+          "perl", "gap", "fortran", "julia",
           "latex", "bibtex",
-          "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
+          "html", "php", "rst", "toml", "markdown", "markdown_inline",
+          "lua", "vim", "vimdoc", "query",
+          "json", "jsonc", "css", "dockerfile", "doxygen", "editorconfig",
+          "git_config", "git_rebase", "gitattributes", "gitignore", "gitcommit",
         },
 
         -- Automatically install missing parsers when entering buffer
