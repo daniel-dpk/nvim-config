@@ -29,7 +29,12 @@ return {
       },
 
       -- (Default) Only show the documentation popup when manually triggered
-      completion = { documentation = { auto_show = false } },
+      completion = {
+        menu = {
+          auto_show = require('utils.blink_toggle').auto_show,
+        },
+        documentation = { auto_show = false },
+      },
 
       -- Default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
@@ -47,6 +52,15 @@ return {
       -- Experimental signature help support
       signature = { enabled = true },
     },
-    opts_extend = { "sources.default" }
+
+    opts_extend = { "sources.default" },
+
+    config = function(_, opts)
+      require('blink.cmp').setup(opts)
+      vim.keymap.set('n', '<leader>tc', require('utils.blink_toggle').toggle,
+        { desc = '[T]oggle [C]ompletion auto-show' })
+    end,
+
+    --event = 'VimEnter',
   },
 }
