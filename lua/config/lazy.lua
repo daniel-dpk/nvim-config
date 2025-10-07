@@ -24,7 +24,7 @@ require("lazy").setup({
     { import = "config.plugins" },
   },
   ui = {
-    border = "solid",
+    border = "rounded",
   },
   change_detection = {
     -- automatically check for config file changes and reload the ui
