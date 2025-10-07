@@ -3,15 +3,7 @@ return {
     'NickvanDyke/opencode.nvim',
     dependencies = {
       -- Recommended for `ask()`, and required for `toggle()` — otherwise optional
-      {
-        'folke/snacks.nvim',
-        priority = 1000,
-        lazy = false,
-        opts = {
-          bigfile = { enabled = true },
-          input = { enabled = true },
-        },
-      },
+      { 'folke/snacks.nvim' }, -- needs: opts = { input = { enabled = true } }
     },
     config = function()
       local oc = require('opencode')
