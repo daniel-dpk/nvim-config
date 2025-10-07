@@ -1,5 +1,5 @@
 local M = {
-  -- Reasonable defaults / “common” names
+  -- Reasonable defaults / "common" names
   ["*"] = { "function_definition", "class_definition" },
 
   -- Python (tree-sitter-python)
@@ -10,7 +10,7 @@ local M = {
     "decorated_definition",
   },
 
-  -- Lua (tree-sitter-lua) — there’s no classes; functions come in 2 flavors
+  -- Lua (tree-sitter-lua) - there's no classes; functions come in 2 flavors
   lua = {
     "function_declaration",
     "local_function",

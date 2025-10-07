@@ -4,7 +4,7 @@
 **Always** use relative paths for all tool calls.
 
 ## Purpose
-Modern Neovim config in Lua using lazy.nvim for IDE‑like experience.
+Modern Neovim config in Lua using lazy.nvim for IDE-like experience.
 
 ## Structure
 - `init.lua` loads `config.lazy`, `options`, `keymaps`
@@ -13,12 +13,12 @@ Modern Neovim config in Lua using lazy.nvim for IDE‑like experience.
 - ftplugins, syntax, etc., in `after/` extend the default settings
 
 ## Style
-- 2‑space indent
-- single‑quote strings
+- 2-space indent
+- single-quote strings
 - prefer Lua over vimscript, also in mappings
 - `vim.o`/`vim.opt` for options
 - `vim.g` for globals
-- modules return a table (`return { … }`)
+- modules return a table (`return { ... }`)
 - require modules with dot notation
 
 ## Naming
@@ -27,11 +27,11 @@ Modern Neovim config in Lua using lazy.nvim for IDE‑like experience.
 - globals `vim.g.<name>`
 
 ## Keymaps
-- `vim.keymap.set(mode, lhs, rhs, { desc = '…' })`
+- `vim.keymap.set(mode, lhs, rhs, { desc = '...' })`
 - description is important for `which-key`, it should be concise since it is shown in `which-key` popup tables
 - as noted above, implement `rhs` via Lua if it makes sense (exceptions to this rule are OK, such as many mappings in `lua/keymaps.lua`)
 
 ## Formatting
 - blank line between sections
 - trailing commas in tables
-- ≤80 chars per line
+- <=80 chars per line
