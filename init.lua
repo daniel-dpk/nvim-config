@@ -32,10 +32,6 @@ TODO:
   [x] toggle which-key
   [x] toggle suggestions
   [x] map h/j/k/l for wrapped lines
-  [ ] make OpenCode window less wide
-  [ ] ftplugin `opencode_terminal`:
-      [x] make <C-h>/<C-l> work
-      [ ] make scrolling work
   [ ] swap two windows
   [x] move between instance methods and classes/functions
   [ ] snippets
