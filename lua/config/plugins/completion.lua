@@ -2,7 +2,40 @@ return {
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
-    dependencies = { 'rafamadriz/friendly-snippets' },
+    dependencies = {
+      {
+        'L3MON4D3/LuaSnip',
+        version = "v2.*",
+        build = "make install_jsregexp",
+        dependencies = {
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
+        },
+        config = function()
+          local ls = require('luasnip')
+          require('utils.snippets_reload')
+
+          vim.keymap.set('i', '<C-j>', ls.expand,
+            { silent = true, desc = "Snippet: expand" })
+
+          vim.keymap.set({ 'i', 's' }, '<C-l>', function() ls.jump(1) end,
+            { silent = true, desc = "Snippet: jump forward" })
+
+          vim.keymap.set({ 'i', 's' }, '<C-h>', function() ls.jump(-1) end,
+            { silent = true, desc = "Snippet: jump back" })
+
+          vim.keymap.set({ 'i', 's' }, '<C-e>', function()
+            if ls.choice_active() then
+              ls.change_choice(1)
+            end
+          end, { silent = true, desc = "Snippet: change active choice" })
+        end,
+      },
+    },
 
     -- use a release tag to download pre-built binaries
     version = '1.*',
@@ -32,7 +65,15 @@ return {
       completion = {
         menu = {
           auto_show = require('utils.blink_toggle').auto_show,
+          draw = {
+            columns = {
+              { "kind_icon" },
+              { "label", "label_description", gap = 1 },
+              { "kind" },
+            },
+          },
         },
+        --documentation = { auto_show = true, auto_show_delay_ms = 1000 },
         documentation = { auto_show = false },
       },
 

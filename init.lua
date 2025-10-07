@@ -30,7 +30,7 @@ TODO:
   [x] modify hybrid colorscheme to clearly show statusline and window borders
   [x] press 'o' in loclist/qfixlist to "view" place (stay in list)
   [x] toggle which-key
-  [ ] toggle suggestions
+  [x] toggle suggestions
   [x] map h/j/k/l for wrapped lines
   [ ] make OpenCode window less wide
   [ ] ftplugin `opencode_terminal`:
@@ -39,6 +39,8 @@ TODO:
   [ ] swap two windows
   [x] move between instance methods and classes/functions
   [ ] snippets
+      [x] decide on engine
+      [ ] port old snippets
   [x] toggle spell
   [ ] vim-test
   [ ] go through old Vim config and port remaining stuff
