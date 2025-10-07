@@ -97,7 +97,7 @@ return {
       elseif kind == 'classmethod' then
         out = 'cls.'
       end
-      return sn(nil, {t(out)})
+      return sn(nil, { t(out) })
     end, {})
   ),
 
@@ -115,7 +115,7 @@ return {
       table.insert(nodes, i(2, ''))
       table.insert(nodes, t(') -> '))
       table.insert(nodes, i(3, 'None'))
-      table.insert(nodes, t({':', '\t'}))
+      table.insert(nodes, t({ ':', '\t' }))
       table.insert(nodes, i(4, '...'))
       return sn(nil, nodes)
     end)
