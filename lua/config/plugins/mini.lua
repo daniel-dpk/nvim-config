@@ -13,6 +13,8 @@ return {
       -- Statusline replacement
       local statusline = require('mini.statusline')
       statusline.setup { use_icons = vim.g.have_nerd_font }
+
+      local align = require('mini.align').setup()
     end,
   },
 }
