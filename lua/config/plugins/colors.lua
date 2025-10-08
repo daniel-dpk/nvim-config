@@ -11,6 +11,8 @@ return {
   --{ "ramojus/mellifluous.nvim", config = function() vim.cmd.colorscheme("mellifluous") end },
   {
     "HoNamDuong/hybrid.nvim",
+    lazy = false,
+    priority = 10000,
     config = function()
       vim.cmd.colorscheme("hybrid")
       require('utils.color_overrides')
