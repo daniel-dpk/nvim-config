@@ -32,7 +32,7 @@ TODO:
   [x] toggle which-key
   [x] toggle suggestions
   [x] map h/j/k/l for wrapped lines
-  [ ] Python indentation fixes
+  [x] Python indentation fixes
   [ ] swap two windows
   [x] move between instance methods and classes/functions
   [ ] snippets

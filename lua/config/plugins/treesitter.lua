@@ -26,6 +26,8 @@ return {
         -- List of parsers to ignore installing (or "all")
         --ignore_install = { "javascript" },
 
+        indent = { enable = true },
+
         highlight = {
           enable = true,
 
