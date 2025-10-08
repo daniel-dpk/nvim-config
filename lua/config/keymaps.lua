@@ -34,8 +34,6 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
-vim.keymap.set('n', '<Leader>w', '<cmd>wincmd =<CR>', { desc = 'Equalize window sizes' })
-
 -- Tab navigation
 vim.keymap.set('n', '<C-Left>', ':tabprev<CR>', { desc = 'Go to previous tab' })
 vim.keymap.set('n', '<C-Right>', ':tabnext<CR>', { desc = 'Go to next tab' })
@@ -44,6 +42,13 @@ vim.keymap.set('n', '<S-Right>', ':tabmove +1<CR>', { desc = 'Move tab right' })
 vim.keymap.set('n', 'tt', ':tab split<CR>', { desc = 'New tab' })
 -- " Close current tab leaving us on previous tab (instead of next).
 vim.keymap.set('n', 'TT', ':silent! tabmove -1<CR>:tabclose<CR>', { desc = 'Close tab' })
+
+-- Window resizing
+vim.keymap.set('n', '<Leader>w', '<cmd>wincmd =<CR>', { desc = 'Equalize window sizes' })
+vim.keymap.set('n', '<Leader>z', require('utils.window_resize').expand_current, { desc = '[Z]oom window' })
+--vim.keymap.set('n', '<Leader>Z', function()
+--  require('utils.window_resize').expand_current({ debug = true })
+--end, { desc = '[Z]oom window' })
 
 -- Navigate quickfix and location lists
 local function nav(cmd)
