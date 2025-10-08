@@ -33,7 +33,7 @@ TODO:
   [x] toggle suggestions
   [x] map h/j/k/l for wrapped lines
   [x] Python indentation fixes
-  [ ] swap two windows
+  [x] swap two windows
   [x] move between instance methods and classes/functions
   [ ] snippets
       [x] decide on engine
