@@ -125,4 +125,16 @@ return {
     t('self.'), i(1, 'param'), t(' = '),
     dl(2, l._1:gsub("^_", ""), 1),
   }),
+
+  s({ trig = "doc", desc = "docstring" }, { t('r"""'), i(1), t('"""') }),
+
+  s({ trig = "Doc", desc = "multi-line docstring" }, {
+    t('r"""'), i(1, 'One line description'),
+    t({ '', '', '' }),
+    i(2, 'Description'),
+    t({ '', '"""' })
+  }),
+
+  s({ trig = "$", desc = "sphinx: math" }, { t(':math:`'), i(1), t('`') }),
+  s({ trig = "`", desc = "sphinx: code" }, { t('``'), i(1), t('``') }),
 }
