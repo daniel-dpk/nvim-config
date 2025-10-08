@@ -16,15 +16,28 @@ return {
     },
     config = function()
       -- [[ General config ]]
-      vim.diagnostic.config({
+      local diagnostic_config = {
         severity_sort = true,
         virtual_text = true,
-      })
+        virtual_lines = false,
+      }
+      vim.diagnostic.config(diagnostic_config)
 
       -- [[ Key maps ]]
       vim.keymap.set("n", "<localleader>d", function()
         vim.diagnostic.enable(not vim.diagnostic.is_enabled())
       end, { desc = 'Toggle [d]iagnostics' })
+
+      vim.keymap.set("n", "<localleader>D", function()
+        if not diagnostic_config.virtual_lines then
+          diagnostic_config.virtual_lines = { current_line = true }
+          vim.notify("virtual-lines: enabled")
+        else
+          diagnostic_config.virtual_lines = false
+          vim.notify("virtual-lines: disabled")
+        end
+        vim.diagnostic.config(diagnostic_config)
+      end, { desc = 'Toggle virtual-lines [D]iagnostics' })
 
       vim.keymap.set("n", "<localleader>F", function()
         vim.lsp.buf.format({ async = false })
