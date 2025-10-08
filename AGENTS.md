@@ -7,10 +7,12 @@
 Modern Neovim config in Lua using lazy.nvim for IDE-like experience.
 
 ## Structure
-- `init.lua` loads `config.lazy`, `options`, `keymaps`
+- `init.lua` loads `config.lazy`, `config.options`, `config.keymaps`
 - the `./lua/` directory is added to the Lua search path by Neovim, so that, e.g., `require('config.lazy')` loads `./lua/config/lazy.lua`
-- plugins reside in `lua/config/plugins/*.lua` and are configured to be loaded by `lazy.lua`
+- `lazy.nvim` plugin specs reside in `lua/config/plugins/*.lua`
 - ftplugins, syntax, etc., in `after/` extend the default settings
+- local plugins (not cloned from external sources) loaded by `lazy.nvim` reside in `local/` (example: `code-nav` loaded in `lua/config/plugins/code-nav.lua`)
+- local helpers used in, e.g., keymaps but not managed by `lazy.nvim` reside in `lua/utils/` (these could in principle be turned into `lazy.nvim`-managed plugins)
 
 ## Style
 - 2-space indent
