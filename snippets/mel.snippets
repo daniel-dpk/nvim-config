@@ -1,0 +1,140 @@
+extends c
+
+priority 1
+
+
+snippet p "Print debug message"
+	print (">>> $1 <<<\n");
+
+
+snippet pv "Print variable value"
+	print (">>> $1 = " + $${1:var} + " <<<\n");
+
+
+snippet for "for loop"
+	for ($${3:i} = 0; $$3 < ${1:size($${2})}; $$3++) {
+		${VISUAL}${4}
+	}
+
+snippet fore "foreach loop: for (i in arr) {...}"
+	${3:string} $$2;
+	for ($${2:item} in $${1:array}) {
+		${VISUAL}${4}
+	}
+
+
+snippet if "if (...) {code...}"
+	if (${1}) {
+		${VISUAL}${2}
+	}
+
+snippet else "else"
+	else {
+		${VISUAL}${1}
+	}
+
+snippet ife "if else"
+	if (${1}) {
+		${VISUAL}${2}
+	} else {
+		${3}
+	}
+
+
+snippet switch "switch (...) {code...}"
+	switch (${1:$which}) {
+		case ${2:1}:
+			${3:${VISUAL:\/\/ code...}}
+			break;
+		default:$4
+			break;
+	}
+
+
+snippet case "another case in a switch()"
+	case ${1:val}:
+		${2:${VISUAL:\/\/ code...}}
+		break;
+
+
+snippet prompt "Prompt Dialog with OK and Cancel buttons"
+	string $result = \`promptDialog
+		-t  "${1:Title}"
+		-m  "${2:Message}"
+		${3:-tx "${4:editable text}"}
+		-b  "OK"
+		-b  "Cancel"
+		-db "OK"
+		-p  ${5:\$parentWin}
+	\`;
+	if ("OK" != $result) {
+		${6:return;}
+	}
+	string \$${7:choice} = `promptDialog -q -tx`;
+
+
+snippet prompt "Confirm Dialog with OK and Cancel buttons"
+	string $result = \`confirmDialog
+		-t  "${1:Title}"
+		-m  "${2:Message}"
+		-b  "OK"
+		-b  "Cancel"
+		-db "OK"
+		-p  ${3:\$parentWin}
+	\`;
+	if ("OK" != $result) {
+		${6:return;}
+	}
+
+
+snippet ok "Confirm Dialog with an OK button"
+	confirmDialog
+		-t  "${1:Title}"
+		-m  "${2:Message}"
+		-b  "OK"
+		-db "OK"
+		-p  ${3:\$parentWin};
+
+
+snippet loc "local proc"
+	//------------------------------
+	// _$1 <
+	//------------------------------
+	proc ${3:/* return */} _${1:procName}(${2:/* params */}) {
+		${4:${VISUAL:\/\/ code...}}
+	}
+
+
+snippet glob "global proc"
+	////////////////////////////////
+	// $1 <
+	//
+	// ${4:TODO: Describe $1}
+	////////////////////////////////
+	global proc ${3:/* return */} ${1:`expand("%:t:r")`_}(${2:/* params */}) {
+		${5:${VISUAL:\/\/ code...}}
+	}
+
+
+snippet Doc "Documentation for a global proc"
+	////////////////////////////////
+	// ${1:procedureName} <
+	//
+	// ${2:Description}
+	////////////////////////////////
+
+
+snippet doc "Documentation for a local proc"
+	//------------------------------
+	// ${1:procedureName} <
+	//
+	// ${2:Description}
+	//------------------------------
+
+
+snippet catch "Try-Catch construct"
+	if (catch(${1:${VISUAL:dangerousCall()}})) {
+		${2:// Failure}
+	} else {
+		${3:// Success}
+	}

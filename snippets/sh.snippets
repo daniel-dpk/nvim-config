@@ -1,0 +1,141 @@
+snippet #! "init new script"
+	#!/bin/bash
+
+	# Stop upon any errors encountered.
+	set -o errexit
+
+	# Change dir to the script's folder.
+	SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+	cd \$SCRIPT_DIR
+
+
+snippet usage "usage message"
+	usage() {
+		cat <<END
+	Usage: \`basename \$0\` [OPTIONS]
+
+		${1:Description}
+
+	OPTIONS:
+		-f/--force  Description of flag -f. Default: \$force
+		-h          Show this help message
+	END
+	}
+
+
+snippet args "argument parsing (*simple*)"
+	${1:name}=""
+	${3:force}=0
+	while [[ "$#" -gt 0 ]]; do
+		case "\$1" in
+			-${2:n}|--$1)
+				shift
+				$1=\$1
+				;;
+			-${4:f}|--$3)
+				$3=1
+				;;
+			*)
+				echo "ERROR: Unknown argument: \$1"
+				exit 1
+				;;
+		esac
+		shift
+	done
+
+
+snippet args "argument parsing (*complex*)"
+	# Default values for options
+	${1:opt1}="${2:def1}"
+	${4:opt2}="${5:def2}"
+
+
+	#===============================
+	usage() {
+		cat <<EOF
+		Usage: \`basename \$0\` [OPTIONS]
+
+			${7:Description of script.}
+
+
+		OPTIONS:
+		 -${3:a} string  Description of flag -$3. Default: $2
+		 -${6:b} string  Description of flag -$6. Default: $5
+
+		 -h         Show this message
+
+
+		EXAMPLES:
+			\`basename \$0\` -$3 value
+	EOF
+	}
+	#===============================
+
+
+	#===============================
+	# Read the options given on the command line.
+	# The string after getopts specifies expected args, like:
+	#   abc    - allows flags -a -b -c
+	#   ab:c   - allows flags -a -b ARGUMENT -c
+	#   a:b:   - allows flags -a ARG1 -b ARG2
+	#===============================
+	while getopts "h$3:$6:" OPTION; do
+		case \$OPTION in
+			h)
+				usage
+				exit 0
+				;;
+			$3)
+				$1=\$OPTARG
+				if [ "\$$1" == "" ]; then
+					echo "ERROR: Empty string not a valid argument for '-$3'"
+					echo ""
+					usage
+					exit 1
+				fi
+				;;
+			$6)
+				$4=\$OPTARG
+				;;
+			?)
+				usage
+				exit 1
+				;;
+		esac
+	done
+	#===============================
+	# This removes all recognized options from the \$* variables.
+	shift \$(($OPTIND - 1))
+	if [ \$# -gt 0 ]; then
+		echo "ERROR: trailing arguments to \`basename \$0\`: '\$@'"
+		usage
+		exit 1
+	fi
+	#===============================
+
+
+snippet if "if [ ]"
+	if [ ${1:-f "file"} ]; then
+		${2:# ...}
+	fi
+
+snippet if "if [[ ]]"
+	if [[ ${1:condition} ]]; then
+		${2:# ...}
+	fi
+
+
+snippet for "Loop through arguments"
+	for ${1:var} in "$@"; do
+		echo "$$1"
+	done
+
+
+snippet prompt "Prompt for user input (y/n)"
+	read -p "${1:Yes or no?} [y/n] " -r
+	echo
+	if [[ $REPLY =~ ^[Yy](es)?$ ]]; then
+		echo "Yes"
+	else
+		echo "No"
+	fi

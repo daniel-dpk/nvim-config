@@ -1,0 +1,25 @@
+snippet create "CREATE TABLE ..."
+	create table ${1:table_name} (
+		id INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+		${2:created}         DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+		${3:a_varchar}       VARCHAR( 255 ) NOT NULL ,
+		${4:a_bool}          BOOL NOT NULL DEFAULT 0 ,
+		${5:some_text}       TEXT NOT NULL ,
+		${6:an_enum}         ENUM( '${7:val1}', '${8:val2}' ) NOT NULL ,
+		KEY (\`$2\`)
+	);
+
+snippet key "KEY (`...`)"
+	KEY (\`${1:field_name}\`)
+
+snippet sel "SELECT ..."
+	SELECT ${1:*} FROM ${2:table} WHERE ${3:condition}
+
+snippet insert "INSERT INTO ..."
+	INSERT INTO ${1:table} (${2:field1, ...}) VALUES(${3:val1, ...})
+
+snippet update "UPDATE ..."
+	UPDATE ${1:table} SET ${2:col1=val1, col2=val2, ...} WHERE ${3:condition}
+
+snippet delete "Description"
+	DELETE FROM ${1:table} WHERE ${2:condition}

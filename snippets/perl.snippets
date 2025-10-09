@@ -1,0 +1,432 @@
+#############################
+#  Change Default Snippets  #
+#############################
+
+snippet ife "Conditional if..else (ife)"
+	if ($1) {
+		$2
+	} else {
+		$3
+	}
+
+snippet ifee "Conditional if..elsif..else (ifee)"
+	if ($1) {
+		$2
+	} elsif ($3) {
+		$4
+	} else {
+		$5
+	}
+
+snippet xunless "Conditional one-line (unless)"
+	${1:expression} unless ${2:condition};
+
+snippet xif "Conditional one-line (xif)"
+	${1:expression} if ${2:condition};
+
+snippet sub "Function (sub)"
+	sub ${1:function_name} {
+		my (${2:$arg1, $arg2}) = @_;
+		${3:${VISUAL}}
+	}
+
+snippet xfore "Loop one-line (xforeach)"
+	${1:expression} foreach @${2:array};
+
+snippet xwhile "Loop one-line (xwhile)"
+	${1:expression} while ${2:condition};
+
+snippet eval "eval"
+	eval {
+		${1:# do something risky...}
+	};
+	if ($@) {
+		${2:# handle failure...}
+	}
+
+snippet for "for"
+	for (my $${1:i} = 0; $$1 < ${2:expression}; $$1++) {
+		${3:# body...}
+	}
+
+snippet fore "foreach"
+	foreach ${1:my $${2:item}} (@${3:array}) {
+		${4:# body...}
+	}
+
+snippet if "if"
+	if ($1) {
+		${2:${VISUAL}}
+	}
+
+snippet unless "unless"
+	unless ($1) {
+		${2:# body...}
+	}
+
+snippet while "while"
+	while ($1) {
+		${2:# body...}
+	}
+
+
+#################
+#  My Snippets  #
+#################
+
+snippet #! "Start a new perl script"
+	#!/usr/bin/perl
+	use strict;
+	use warnings;
+
+snippet err "Print error and exit"
+	print "ERROR: ${1:Something went wrong.}\n";
+	exit 1;
+
+snippet open "File I/O (input)"
+	open( ${1:IN}, '${2:<}', $${3:fileName} ) or die "Can't open '$$3' for reading: $!";
+	my $line;
+	while (defined($line = <$1>)) {
+		chomp $line;
+		$4
+	}
+	close $1;
+
+snippet open "File I/O (output)"
+	open( ${1:OUT}, '${2:>}', $${3:fileName} ) or die "Can't open '$$3' for writing: $!";
+	${4:print $1 ${5:"Hello\n"};}
+	close $1;
+
+snippet tie "Tie::File for file I/O"
+	use Tie::File;
+
+	my @${1:file};
+	tie @$1, 'Tie::File', $${2:fileName} or die "Can't open '$$2': $!";
+
+	untie @$1;
+
+snippet clip "Win32::Clipboard usage"
+	if ($^O =~ /Win32/i) {
+		use Win32::Clipboard;
+	}
+
+	my $clipData = '';
+	if ($^O =~ /Win32/i) {
+		my $CLIP = Win32::Clipboard();
+		$clipData = $CLIP->Get();
+		chomp($clipboard);
+		$CLIP->Set("some text");
+	}
+
+snippet cwd "Cwd usage (Current Working Directory)"
+	use Cwd();
+	my $cwd = Cwd::getcwd();
+
+snippet prompt "Prompt for user input [Y/n]"
+	print "${1:Do this? [Y/n]} ";
+	my $${2:result} = <STDIN>;
+	if (length($$2) > 0 && $$2 !~ /y(es)?/i) {
+		print "Terminated by user.\n\n";
+		print "Press Enter to exit."; <STDIN>;
+		exit 0;
+	}
+
+
+snippet args "Get arguments via flags and w/o Getopt::Long"
+	my @gFiles;
+	my $g${1/\w+/\u$0/};
+	my $g${3/\w+/\u$0/};
+
+	if (0 == scalar @ARGV) {
+		print "ERROR: Wrong number of arguments.\n";
+		_showHelp(1);
+	} elsif (1 == scalar @ARGV and $ARGV[0] =~ /^--?h(elp)?$/) {
+		_showHelp(0);
+	} else {
+		my $result = _getOptions();
+		if ($result > 0) {
+			_showHelp($result);
+		}
+	}
+
+	sub _getOptions {
+		my $parse = 1;
+		for (my $i = 0; $i < @ARGV; $i++) {
+			if ($ARGV[$i] eq "--") {
+				$parse = 0;
+				next;
+			}
+
+			# FLAG: -${1:flag1}/-${2:f1}
+			if ($parse and ($ARGV[$i] eq "-$1" or $ARGV[$i] eq "-$2")) {
+				if ($i+1 < @ARGV) {
+					$g${1/\w+/\u$0/} = $ARGV[++$i];
+					next;
+				}
+				print "ERROR: not enough arguments for flag '-$1'.\n";
+				return 1;
+			}
+
+			# FLAG: -${3:flag2}/-${4:f2}
+			if ($parse and ($ARGV[$i] eq "-$3" or $ARGV[$i] eq "-$4")) {
+				if ($i+1 < @ARGV) {
+					$g${3/\w+/\u$0/} = $ARGV[++$i];
+					next;
+				}
+				print "ERROR: not enough arguments for flag '-$3'.\n";
+				return 1;
+			}
+
+			# The argument should be a file.
+			$parse = 0;
+			if (!-f $ARGV[$i]) {
+				print "ERROR: File not found: $ARGV[$i].\n";
+				return 1;
+			}
+			push @gFiles, $ARGV[$i];
+		}
+		return 0;
+	}
+
+	sub _showHelp {
+		my $exitCode = shift;
+		(my $s = \$0) =~ s/.*[\/\\\\]//;
+
+		print <<END;
+		Usage: $s [OPTIONS] [--] file1 ...
+
+			Description of what this script does.
+
+
+		OPTIONS:
+		 -h         Show this message
+		 -$1     ...
+		 -$3     ...
+
+
+		EXAMPLES:
+			...
+	END
+
+		exit $exitCode;
+	}
+
+
+snippet flag "Flag for manual handling"
+	# FLAG: -${1:flag}/-${2:f}
+	if ($parse and ($ARGV[$i] eq "-$1" or $ARGV[$i] eq "-$2")) {
+		if ($i+1 < @ARGV) {
+			$g${3:Variable} = $ARGV[++$i];
+			next;
+		}
+		print "ERROR: not enough arguments for flag '-$1'.\n";
+		return 1;
+	}
+
+
+snippet args "Get arguments w/o flags"
+	my $g${1/\w+/\u$0/};
+	my $g${2/\w+/\u$0/};
+
+	if (1 == scalar @ARGV and $ARGV[0] =~ /^--?h(elp)?$/) {
+		_showHelp(0);
+	} elsif (${3:2} != scalar @ARGV) {
+		print "ERROR: Wrong number of arguments.\n";
+		_showHelp(1);
+	} else {
+		$g${1/\w+/\u$0/} = $ARGV[0];
+		$g${2/\w+/\u$0/} = $ARGV[1];
+
+		# Check arguments
+		# TODO: ...
+	}
+
+
+	sub _showHelp {
+		my $exitCode = shift;
+		(my $s = \$0) =~ s/.*[\/\\\\]//;
+
+		print <<END;
+		Usage: $s ${1:arg1} ${2:arg2}
+
+			Description of what this script does.
+	END
+
+		exit $exitCode;
+	}
+
+
+snippet args "Get arguments w/ Getopt::Long"
+	use Getopt::Long;
+	my $gHelp;
+	my $gInteger;
+	my $gReal;
+	my $gString;
+	my @gMultiple;
+	my @gTuple;
+	my $gFlag;
+	GetOptions(
+		"integer=i"		=> \$gInteger,
+		"real=f"		=> \$gReal,
+		"string=s"		=> \$gString,
+		"multiple=s"	=> \@gMultiple, # use: -m foo -m bar -m baz
+		"tuple=s{3}"	=> \@gTuple,    # use: -t one two three
+		"flag"			=> \$gFlag,
+		"help|?"		=> \$gHelp
+	) or die "ERROR: Error while parsing arguments.\n";
+
+	if (defined $gHelp) {
+		(my $s = \$0) =~ s/.*[\/\\\\]//;
+
+		print <<END;
+		Usage: $s ...
+
+			Description of what this script does.
+	END
+
+		exit;
+	}
+
+
+snippet key "Read a single key (w/o need to press return)"
+	use Term::ReadKey;
+	ReadMode('cbreak');
+	my $key = ReadKey(0);
+	ReadMode('normal');
+
+
+snippet system "Issue a system call"
+	system( "${1:binary}",
+		'-${2:flag1}' => "${3:arg1}",
+		'-${4:flag2}' => "${5:arg2}",
+	) && die "Failed to run $1: $!";
+
+
+snippet scriptDir "Get the full path to currently executing script"
+	use File::Basename;
+	my $scriptDir  = dirname(__FILE__);
+	my $scriptFile = basename(__FILE__);
+	(my $scriptName = $scriptFile) =~ s/\.pl$//i;
+
+
+snippet cfg "Configuration file access"
+	use File::Basename;
+	my $scriptDir  = dirname(__FILE__);
+	my $scriptFile = basename(__FILE__);
+	(my $scriptName = $scriptFile) =~ s/\.pl$//i;
+
+	use Tie::Cfg;
+	tie my %conf, 'Tie::Cfg',
+		READ  => $scriptDir.'/'.$scriptName.'.cfg',
+		WRITE => $scriptDir.'/'.$scriptName.'.cfg'
+	;
+
+
+snippet class "A new class in a package"
+	################################
+	# CLASS: $1
+	# Usage:
+	#   my \$obj = new $1("foo");
+	#   \$obj->get${3/\w+/\u$0/}();   # Result: foo
+	#   \$obj->set${3/\w+/\u$0/}("bar");
+	################################
+	BEGIN {
+		package ${1:ClassName};
+		use base '${2:ParentClass}';
+		sub new {
+			my (\$class, %options) = @_;
+			my \$self = {
+				_${3:var1} => 'value1',
+				%options,
+			};
+			bless \$self, \$class;
+			# ... or call base constructor like this (don't bless in this case):
+			#  my (\$class, %options) = @_;
+			#  my \$self = \$class->SUPER::new();
+			#  \$self->{\$_} = $options{\$_} for keys %options;
+			return \$self;
+		}
+		sub get${3/\w+/\u$0/} {
+			my (\$self) = @_;
+			return \$self->{_$3};
+		}
+		sub set${3/\w+/\u$0/} {
+			my (\$self,\$$3) = @_;
+			\$self->{_$3} = \$$3 if defined(\$$3);
+			return \$self->{_$3};
+		}
+	}
+
+
+snippet getset "Getter-Setter for class"
+	sub get${1/\w+/\u$0/} {
+		my (\$self) = @_;
+		return \$self->{_${1:var}};
+	}
+	sub set${1/\w+/\u$0/} {
+		my (\$self, \$$1) = @_;
+		\$self->{_$1} = \$$1;
+	}
+
+
+snippet test "Self Testing this Script"
+	# TODO: Put this somewhere at the top.
+	my \$gTest_fails = 0;
+	my \$gTest_nr = 0;
+	if (1 == scalar @ARGV and \$ARGV[0] =~ /^TEST\$/i) {
+		_test();
+	}
+
+
+	#=========================================================================#
+	#                              Self Testing                               #
+	#=========================================================================#
+
+	sub _test {
+		print "**************************************************\n";
+		print "**************************************************\n";
+		print "                Running Test Suite\n";
+
+		# TODO: Your tests go here!
+		_requireEq(2+2, 4);
+		_require(2+2 == 4);
+
+		_summary();
+		exit 0;
+	}
+
+	sub _require {
+		my (\$status) = @_;
+		\$gTest_nr++;
+		unless (\$status) {
+			my (\$package, \$filename, \$line) = caller;
+			\$gTest_fails++;
+			print "FAIL: Test \$gTest_nr failed at line \$line\n";
+			_summary();
+		}
+	}
+	sub _requireEq {
+		my (\$lhs, \$rhs) = @_;
+		\$gTest_nr++;
+		if ("\$lhs" ne "\$rhs") {
+			my (\$package, \$filename, \$line) = caller;
+			\$gTest_fails++;
+			print "FAIL: Test \$gTest_nr failed at line \$line\n";
+			print "    Expected: \$rhs\n";
+			print "      Result: \$lhs\n";
+			_summary();
+		}
+	}
+
+	sub _summary {
+		print "\n";
+		print "**************************************************\n";
+		print "Tests: \$gTest_nr, Passed: ".(\$gTest_nr-\$gTest_fails)."\n";
+		if (\$gTest_fails == 0) {
+			print "All tests passed.\n";
+		} else {
+			print "FAILED TESTS!\n";
+		}
+		print "**************************************************\n";
+		exit \$gTest_fails > 0 ? 1 : 0;
+	}

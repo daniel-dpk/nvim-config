@@ -1,0 +1,434 @@
+snippet class "class without docstrings"
+	class ${1:MyClass}(${2:Base}):
+		def __init__(self$3) -> None:
+			pass
+
+
+snippet slotclass "class with slots and docstrings"
+	class ${1:MyClass}:
+		r"""${2:Description}"""
+
+		__slots__ = ("${3:x}",)
+
+		$3: ${4:float}
+		r"""${5:Description}"""
+
+		def __init__(self, $3: $4) -> None:
+			self.$3 = $3
+
+
+snippet enum "enum class"
+	class ${1:MyEnum}(Enum):
+		r"""${2:Description}"""
+		${3:MEMBER1} = 1
+
+
+snippet akw "*args, **kwargs"
+	*args, **kwargs
+
+
+snippet testcase "pyunit testcase"
+	class Test${1:Class}:
+		def test_${2:name}(self):
+			${3:...}
+
+
+snippet test "Test function"
+	def test_${1:name}(self):
+		${2:...}
+
+
+snippet ae "Assert equal"
+	self.assertEqual(${1:actual}, ${2:expected})
+
+snippet ane "Assert not equal"
+	self.assertNotEqual(${1:actual}, ${2:expected})
+
+snippet aae "Assert almost equal"
+	self.assertAlmostEqual(${1:actual}, ${2:expected})
+
+snippet ar "Assert raises"
+	with self.assertRaises(${1:Runtime}Error):
+		${2:...}
+
+snippet aac "assert_allclose (numpy)"
+	np.testing.assert_allclose(${1:actual}, ${2:expected}, rtol=1e-14, atol=0)
+
+
+snippet future "from __future__ import stuff..."
+	from __future__ import annotations
+
+snippet rwprop "Read/Write Property"
+	@property
+	def ${1:my_prop}(self):
+		return self.${2:_$1}
+	@$1.setter
+	def $1(self, value):
+		self.$2 = value
+
+snippet lprop "Lazy Read-only Property"
+	@property
+	def ${1:my_prop}(self):
+		if self.${2:_$1} is None:
+			self.$2 = self.${3:_compute_$1}()
+		return self.$2
+
+snippet lwprop "Lazy Read/Write Property"
+	@property
+	def ${1:my_prop}(self):
+		if self.${2:_$1} is None:
+			self.$2 = self.${3:_compute_$1}
+		return self.$2
+	@$1.setter
+	def $1(self, value):
+		self.$2 = value
+
+snippet aprop "Abstract property"
+	@property
+	@abstractmethod
+	def ${1:my_prop}(self):
+		${2:...}
+
+snippet cprop "Cached property (functools)"
+	@cached_property
+	def ${1:my_prop}(self):
+		return ${2:...}
+
+
+snippet ifn "if x is None: ..."
+	if ${1:x} is None:
+		${2:...}
+
+
+snippet defa "Abstract method without docstring"
+	@abstractmethod
+	def ${1:function}(self, ${2:arg1}) -> ${3:None}:
+		${4:...}
+
+
+snippet defc "Class method without docstring"
+	@classmethod
+	def ${1:function}(cls, ${2:arg1}) -> ${3:None}:
+		${4:...}
+
+
+snippet doc "Oneline (short) documentation string"
+	r"""${1:Documentation}"""
+
+snippet Doc "Documentation string with heading and body"
+	r"""${1:Brief description.}
+
+	${2:Long description.}
+	"""
+
+snippet docnp "Function/method documentation (NumPy style)"
+	r"""${1:Brief description.}
+
+	${2:Long description.}
+
+	Parameters
+	----------
+	${3:var1} : ${4:int}
+		${5:Describe $3.}
+
+	Returns
+	-------
+	${6:type}
+		${7:...}
+	"""
+
+snippet paramnp "Parameters docs section (NumPy style)"
+	Parameters
+	----------
+	${1:var1} : ${2:int}
+		${3:Describe $1}
+
+snippet a "Docs for an argument or attributes (NumPy style)"
+	${1:var1} : ${2:int}
+		${3:Describe $1}
+
+snippet exnp "Examples docs section (NumPy style)"
+	Examples
+	--------
+	>>> ${1:...}
+
+snippet retnp "Return docs section (NumPy style)"
+	Returns
+	-------
+	${1:type}
+		${2:...}
+
+snippet notesnp "Notes docs section (NumPy style)"
+	Notes
+	-----
+	${1:...}
+
+snippet Ref "References section (NumPy style)"
+	References
+	----------
+	[1] ${1:...}
+
+snippet label "label that can be referenced (reST)"
+	.. _${1:label}:
+
+snippet img "Image (reST)"
+	.. image:: /_static/${1:img}.png
+	   :alt: ${2:...}
+	   :align: center
+
+
+snippet /^all/ "__all__ variable definition"
+	__all__ = [
+		"${1:exported_function}",
+	]
+
+
+snippet p "Print debug message >>> inside brackets <<<"
+	print(">>> ${1:Message} <<<")
+
+snippet pv "Print variable in debug message >>> inside brackets <<<"
+	print(f">>> ${1:variable} = {$1} <<<")
+
+snippet pf "Print an f-string"
+	print(f"$1")
+
+snippet perr "print relative+absolute error"
+	print(f"$1 = {${1:a}}")
+	print(f"$2 = {${2:b}}")
+	print(f"abs = {np.absolute($1-$2)}")
+	print(f"rel = {np.absolute($1-$2)/$2}")
+
+
+snippet pnp "Print with NumPy options"
+	import numpy as np
+	with np.printoptions(${3:linewidth=99, precision=12, suppress=True}):
+		print(f"${1:arr} =\n{repr(${2:$1})}")
+
+
+snippet raise "Raise an exception"
+	raise ${1:Runtime}Error(f"${2:Message}")
+
+
+snippet bases "Print all base classes of an object"
+	import inspect
+	print("Bases:\n  " + "\n  ".join(repr(c) for c in inspect.getmro(${1:obj}.__class__)))
+
+
+snippet bp "Set an IPython breakpoint"
+	import ipdb; ipdb.set_trace()
+
+
+snippet pytest "Pytest test file template"
+	# pylint: disable=missing-module-docstring,missing-function-docstring
+	# pylint: disable=missing-class-docstring
+
+	from __future__ import annotations
+
+	from pytest import approx
+	import numpy as np
+	from numpy import array
+
+	from ${1:`expand("%:p:h:h")`}.${2:`substitute(expand("%:t:r"), "^test_", "", "")`} import ${3:SomeClass}
+
+
+	class Test$2:
+		def test_$3(self):
+			assert array([1]) == approx(array([0])) # fail to show tests work
+
+
+snippet aa "assert arr == approx(y)"
+	assert ${1:arr} == approx(${2:expected})
+
+
+snippet aanp "assert arr == approx(array([1, 2, 3]))"
+	assert ${1:arr} == approx(${2:array([${3:expected}])}${4:, abs=0})
+
+
+snippet flag "Add a flag to the ArgumentParser"
+	parser.add_argument("-${1:f}", "--${2:flag}", ${3:action="store_true"},
+						help="${4:Description of this flag.}")
+
+
+snippet script "Complete script skeleton with argument handling etc."
+	#!/usr/bin/env python3
+
+	import sys
+	import os
+	import os.path as op
+
+	# Logging for this module
+	import logging
+	class NullHandler(logging.Handler): # to support Python < 2.7
+		def emit(self, record): pass
+	logger = logging.getLogger(op.splitext(op.basename(__file__))[0])
+	logger.addHandler(NullHandler())
+
+	# Old Pythons don't have argparse. Download and put argparse.py into path/to/argparse/.
+	if sys.version_info < (2, 7):
+		sys.path.append(op.realpath(op.join(__file__, op.pardir, "path", "to", "argparse")))
+	from argparse import ArgumentParser
+
+
+	class ${1:Worker}():
+		class Error(Exception): pass
+
+		def __init__(self):
+			pass
+
+		def run(self):
+			raise $1.Error("Not implemented.");
+
+
+	class Main():
+		def __init__(self):
+			logging.basicConfig(format=('[%(name)s|%(levelname)s]: %(message)s'))
+			self.parser = self.createParser()
+
+		def createParser(self):
+			parser = ArgumentParser(description="""
+				${2:Description of this script.}
+			""")
+			parser.add_argument("-w", "--wait", action="store_true",
+								help="Prompt user for a key before exiting.")
+			parser.add_argument("-woe", "--waitOnError", action="store_true",
+								help="Prompt user for a key before exiting in case of errors.")
+			parser.add_argument("-v", "--verbosity", action="count", default=0,
+								help="Increase output verbosity. (multi-use)")
+			parser.add_argument("some_arg", nargs='?',
+								help="Some argument that is not a flag.")
+			return parser
+
+		@staticmethod
+		def waitForKey():
+			if sys.platform.startswith("win"): os.system("pause")
+			else: os.system("read -p 'Press ENTER to continue...'")
+
+		def error(self, msg, exitCode=1):
+			logger.error(msg)
+			if self.args.waitOnError:
+				self.waitForKey()
+			sys.exit(exitCode)
+
+		def parseArgs(self):
+			args = self.args = self.parser.parse_args()
+			verbosity = self.verbosity = args.verbosity
+			if verbosity >= 2:
+				logging.getLogger().setLevel(logging.DEBUG)
+			elif verbosity >= 1:
+				logging.getLogger().setLevel(logging.INFO)
+			if args.wait:
+				args.waitOnError = True
+			return args
+
+		def end(self):
+			if self.args.wait:
+				self.waitForKey()
+
+		def run(self):
+			args = self.parseArgs()
+			try:
+				$1().run()
+			except $1.Error as e:
+				self.error(e)
+			self.end()
+
+
+	if __name__ == '__main__':
+		Main().run()
+
+
+snippet abc "Abstract baseclass template"
+	from abc import ABC, abstractmethod
+
+	class ${1:MyAbstractClass}(ABC):
+		@abstractmethod
+		def ${2:_an_abstract_method}(self): pass
+
+
+# TODO: Port to Lua:
+snippet super "Call parent class method"
+	super().${1:this_method}(${2:args})
+
+
+snippet setstate "__setstate__() for __dict__ class"
+	def __setstate__(self, state):
+		r"""Restore this object from the given unpickled state."""
+		self.${1:_new_property} = ${2:None}
+		self.__dict__.update(state)
+
+
+snippet getstate "__getstate__() for __dict__ class"
+	def __getstate__(self):
+		r"""Return a picklable state object."""
+		state = self.__dict__.copy()
+		#state['problematic_property'] = None
+		return state
+
+
+snippet setstate "__setstate__() for __slots__ class"
+	def __setstate__(self, state):
+		r"""Restore this object from the given unpickled state."""
+		dict_data, slot_data = state
+		try:
+			dict_data, slot_data = self.edit_setstate(dict_data, slot_data)
+		except AttributeError:
+			pass
+		if dict_data and hasattr(self, "__dict__"):
+			self.__dict__ = dict_data
+		for k, v in slot_data.items():
+			setattr(self, k, v)
+
+
+snippet getstate "__getstate__() for __slots__ class"
+	def __getstate__(self):
+		r"""Return a picklable state object."""
+		slots = set().union(*(
+			getattr(cls, '__slots__', ())
+			for cls in type(self).__mro__
+		))
+		try:
+			dict_data = self.__dict__.copy()
+		except AttributeError:
+			dict_data = None
+		slot_data = {s: getattr(self, s) for s in slots if hasattr(self, s)}
+		try:
+			dict_data, slot_data = self.edit_getstate(dict_data, slot_data)
+		except AttributeError:
+			pass
+		return dict_data, slot_data
+
+
+snippet new "__new__() method"
+	def __new__(cls, *args, **kwargs):
+		return super().__new__(cls, *args, **kwargs)
+
+
+snippet todo "TODO-entry"
+	# TODO: ${1:...}
+
+
+snippet param "@param the_name Description"
+	@param ${1:var}
+		${2:Description.}
+
+
+snippet ali "LaTeX align inside Sphinx-style equation"
+	\begin{align}
+		${1:...}
+	\end{align}
+
+snippet eq "LaTeX tagged and labeled AMS 'align' equation (Doxygen style)"
+	\f{align}{\label{eq:${1:name}}\tag{${2:1}}
+		${3:...}
+	\f}
+
+snippet eq* "LaTeX AMS 'align*' equation (Doxygen style)"
+	\f{align*}{
+		${3:...}
+	\f}
+
+snippet eqref "Reference to an equation (Doxygen style)"
+	Eq. \f$\eqref{eq:${1}}\f$
+
+snippet es "np.einsum('ij,i,j', g, v1, v2)"
+	np.einsum('$1->$2', ${3:...})

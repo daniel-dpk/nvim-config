@@ -1,0 +1,192 @@
+snippet inc "#include <stdio>"
+	#include <${1:iostream}>
+
+snippet inch "#include 'foo.h'"
+	#include "${1:foo}.h"
+
+snippet for "for loop"
+	for (${1:auto} ${2:i} = ${3:0}; $2 < ${4:count}; ++$2) {
+		${5:${VISUAL}}
+	}
+
+snippet fori "for iterator loop (std::iterator)"
+	for (${1:it} = ${2:sequence}.begin(); $1 != $2.end(); ++$1) {
+		${3:${VISUAL}}
+	}
+
+
+snippet u "unsigned"
+	unsigned $1
+
+
+snippet class "class"
+	//! \brief  ${5:TODO: Describe $1}
+	class ${1:ClassName} ${2:: public ${3:ParentClass} }{
+	public:
+		virtual ~$1() = default;
+		$1() = default;
+
+	private:
+		${4:// Member variables}
+	};
+
+
+snippet interface "interface (Scott Meyers)"
+	//! \brief  ${3:TODO: Describe interface $1}
+	class ${1:InterfaceName} {
+	public:
+		// The actual interface:
+		virtual void ${2:some_function}(${3:args}) = 0;
+
+		// Correct destruction of child via interface pointer using virtual
+		// destructor. This disables (in turn) default move/copy, so we add them.
+		virtual ~$1() = default;
+		$1($1&&) = default; // 2 lines for moving
+		$1& operator=($1&&) = default;
+		$1(const $1&) = default; // 2 lines for copying
+		$1& operator=(const $1&) = default;
+	};
+
+
+snippet interface "interface (Non-Virtual-Interface, NVI)"
+	//! \brief  ${3:TODO: Describe interface $1}
+	class ${1:InterfaceName} {
+	public:
+		// non-virtual interface
+		virtual void ${2:some_function}(${3:args}) { return do_$2($3); }
+
+		// correct destruction of child via parent pointer
+		virtual ~$1() = default;
+
+	private:
+		// pure virtual implementation
+		virtual void do_$2($3) = 0;
+	};
+
+
+snippet try "try {...} catch() {...}"
+	try {
+		${1:${VISUAL}}
+	} catch (const ${2:std::exception} &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
+	}
+
+
+snippet CH "CHECKSTAT_THROW() macro"
+	CHECKSTAT_THROW(${2:stat}, "${1:error message}");
+
+
+snippet once "Include header once only guard"
+	#ifndef ${1:`substitute(toupper(expand("%:t:r")), "[^A-Z0-9]", "_", "g")`}
+	#define $1
+
+	${2:${VISUAL}}$0
+
+	#endif /* end of include guard: $1 */
+
+
+snippet cout "cout << ... << endl;"
+	std::cout << ${1:${VISUAL}} << std::endl;
+
+snippet pv "cout << '>>> var = ' << var << ' <<<';"
+	std::cout << ">>> ${1:${VISUAL}} = " << $1 << " <<<\n";
+
+snippet p "cout << ...;"
+	std::cout << "${1:${VISUAL}}\n";
+
+snippet cerr "cerr << ... << endl;"
+	std::cerr << ${1:${VISUAL}} << std::endl;
+
+snippet " "interrupt string with a '<< ... <<'"
+	" << ${1:${VISUAL}} << "
+
+snippet switch "switch () {...}"
+	switch (${1:determinant}) {
+		case ${2:1}:
+			${3:${VISUAL}}
+			break;
+		default:
+			assert(0);
+	}
+
+snippet case "case (inside a switch)"
+	case ${1:1}:
+		${2:${VISUAL}}
+		break;
+
+
+snippet DOC "Doxygen docs with @param and @return"
+	/*! \brief  ${1:${VISUAL:Short description.}} */
+	//!
+	//! ${2:Long description.}
+	//!
+	//! @param ${3:foo}
+	//!     ${4:Describe $3.}
+	//!
+	//! @return ${5:Say what.}
+
+
+snippet param "@param Doxygen tag"
+	@param ${1:foo}
+	//!     ${2:Describe $1.}
+
+
+snippet doc "Compact brief and long documentation for Doxygen"
+	/*! \brief  ${1:${VISUAL:Short description.}} */
+	//! ${2:Long description.}
+
+snippet sdoc "Brief documentation for Doxygen"
+	/*! \brief  ${1:${VISUAL:Short description.}} */
+
+
+snippet tmp "TMP TMP TMP block"
+	// TODO: TMP TMP TMP {
+	${1:${VISUAL}}
+	// TODO: } TMP TMP TMP
+
+
+# TODO: Port to Lua:
+#snippet "(?<=\S\s)doc\b" "Member documentation in same line" r
+#//!< ${1:${VISUAL:Short description.}}
+#endsnippet
+
+
+# TODO: Port to Lua:
+#snippet "\/\/! [Ee]x\b" "Code example in Doxygen comment" r
+#//! Example:
+#//! ~~~
+#//! ${1:${VISUAL:code}}
+#//! ~~~
+#endsnippet
+
+
+snippet test "Unit Testing: Basic .cpp structure"
+	#include "catch.hpp"
+
+	#include "${1:`expand("%:t:r")`}.h"
+
+
+	TEST_CASE("${2:Testing $1}", "${3:[tags]}") {
+		${4:${VISUAL:...}}
+	}
+
+
+snippet T "Unit Testing: TEST_CASE"
+	TEST_CASE("${1:Unique name}", "${2:[tags]}") {
+		${3:${VISUAL:...}}
+	}
+
+
+snippet S "Unit Testing: SECTION"
+	SECTION("${1:Section name}") {
+		${2:${VISUAL:...}}
+	}
+
+
+snippet R "Unit Testing: REQUIRE macro"
+	REQUIRE(${1:${2:1} == ${3:2}});
+
+
+snippet C "CAPTURE() value of any expression"
+	CAPTURE($1);

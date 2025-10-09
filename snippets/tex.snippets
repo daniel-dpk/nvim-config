@@ -1,0 +1,367 @@
+extends plaintex
+
+snippet newenv "Define a new environment"
+	\newenvironment{${1:EnvName}}{%
+		${2:opening}
+	}{%
+		${3:closing}
+	}
+
+
+snippet oo "\infty"
+	\infty$0
+
+
+snippet fig2 "2 figures side by side (subfigure)"
+	\begin{figure}${1:[tpb]}\centering%
+		\subfigure[]{%
+			\includegraphics[width=0.45\textwidth]{${2:img1}}%
+			\label{fig:$1_a}
+		}%
+		\subfigure[]{%
+			\includegraphics[width=0.45\textwidth]{${3:img2}}%
+			\label{fig:$1_b}
+		}
+		\caption{\label{fig:${4:TODO}}%
+			${5:...}
+		}
+	\end{figure}
+
+
+snippet fig "figure"
+	\begin{figure}
+		\includegraphics[width=0.45\linewidth]{${1:image}}%
+		\caption[]{\label{fig:${2:TODO}}%
+			${3:...}
+		}
+	\end{figure}
+
+
+snippet sfig "figure with side caption"
+	\begin{SCfigure}
+		\includegraphics[width=0.45\linewidth]{${1:image}}%
+		\caption[]{\label{fig:${2:TODO}}%
+			${3:...}
+		}
+	\end{SCfigure}
+
+
+snippet if "if... then... else..."
+	\ifthenelse{${1:\equal{${2:\foo}}{${3:bar}}}}{%
+		${4:ifyes}
+	}{${5:%
+		ifno
+	}}
+
+
+snippet ref "Reference"
+	\ref{$1}
+
+
+snippet sref "Sec.~\ref{sec:...} -> Sec.~IV"
+	Sec.~\ref{sec:$1}$0
+
+snippet ssref "Sec.~\ref{sub:...} -> Sec.~IV.A"
+	Sec.~\ref{sub:$1}$0
+
+
+#\eqref{eq:$1}$0
+snippet eqref "Reference equation Eq.~(1)"
+	Eq.~\eqref{eq:$1}
+
+
+snippet eref "Reference equation (1)"
+	\eqref{eq:$1}
+
+
+snippet enref "\eqnref{eq:...} -> equation (2.1)"
+	\eqnref{eq:$1}$0
+
+
+#\figref{fig:$1}$0
+snippet fref "Reference figure"
+	Fig.~\ref{fig:$1}
+
+
+#\tabref{tab:$1}$0
+snippet tref "Refernce table"
+	Tab.~\ref{tab:$1}
+
+
+snippet cite "\autocite[]{}"
+	\\${1:auto}cite${3:[]}{$2}$0
+
+
+snippet l "\label{}"
+	\label{$1}$0
+
+
+###############################
+#  Tweaking default Snippets  #
+###############################
+
+snippet table "Table environment"
+	\begin{table}[${1:htpb}]
+		\centering
+		\caption{%
+			${2:caption}
+		}
+		\label{tab:${3:label}}
+		\begin{tabular}{${4:c}}
+		\toprule
+			${5:heading}\\\\
+		\midrule
+			${6:data}\\\\
+		\bottomrule
+		\end{tabular}
+	\end{table}
+
+
+snippet tab "table with booktabs rules"
+	\begin{tabular$1}{${2:c}}
+	\toprule
+		${3:heading}\\\\
+	\midrule
+		${4:data}\\\\
+	\bottomrule
+	\end{tabular$1}
+
+
+snippet subeq "subequations"
+	\begin{subequations}\label{eq:${1:TODO}}
+		\begin{align}
+			\label{eq:$1_${2:TODO}}
+			${3:${VISUAL}}
+		\end{align}
+	\end{subequations}
+
+snippet ali "\begin{align(ed)}"
+	\begin{align${1:ed}}
+		${2:${VISUAL}}
+	\end{align$1}
+
+
+snippet cha "Chapter"
+	\chapter{${1:${VISUAL:Chapter Name}}}
+
+snippet sec "Section"
+	\section{${1:${VISUAL:Section Name}}}
+
+snippet sub "Subsection"
+	\subsection{${1:${VISUAL:Subsection Name}}}
+
+snippet ssub "Subsubsection"
+	\subsubsection{${1:${VISUAL:Subsubsection Name}}}
+
+snippet sub* "Subsection w/o number"
+	\subsection*{${1:${VISUAL}}}
+
+snippet ssub* "Subsubsection w/o number"
+	\subsubsection*{${1:${VISUAL}}}
+
+snippet par "Paragraph head"
+	\paragraph{${1:${VISUAL}}}
+
+
+# TODO: Port to Lua and fill in title
+snippet frame "beamer frame"
+	\begin{frame}\frametitle{${1:title}} % {{{2
+		${2:${VISUAL:content}}
+	\end{frame}
+	%\endinput % skip the remainder of this file
+
+
+snippet vframe "fullscreen video frame"
+	\begin{frame}[plain] \def\myvideofile{videos/${1:video}} % {{{2
+		\centering
+		\begin{tikzpicture}[remember picture,overlay]
+			\node[at=(current page.center)] {
+				\href{run:\myvideofile.mp4?autostart&loop}{%
+					\includegraphics[keepaspectratio,width=\paperwidth,height=\paperheight]{%
+						\myvideofile-f000000%
+					}%
+				}%
+			};
+		\end{tikzpicture}
+	\end{frame}
+	%\endinput % skip the remainder of this file
+
+
+snippet video "video"
+	\def\myvideofile{videos/${1:video}}
+	\href{run:\myvideofile.mp4?autostart&loop}{%
+		\includegraphics[keepaspectratio,width=0.8\paperwidth]{%
+			\myvideofile-f000000%
+		}%
+	}%
+
+
+snippet source "source reference (TikZ)"
+	\begin{tikzpicture}[remember picture,overlay]
+		\node[xshift=0.5em,yshift=0.0em,anchor=south west] at (current page.south west) {
+			\tiny (source: ${1:authors}, ${2:ref}${3:, modified})
+		};
+	\end{tikzpicture}
+
+
+snippet tikz "TikZ picture"
+	\begin{tikzpicture}[remember picture,overlay]
+		\node[xshift=0em,yshift=0em,anchor=south west] at (current page.south west) {
+			${1:${VISUAL:...}}
+		};
+	\end{tikzpicture}
+
+
+snippet inc "\includegraphics{...}"
+	\includegraphics[width=${2:0.5}\linewidth,valign=t]{${1:imagefile}}
+
+
+snippet bibi "beamer bibitem"
+	%\setbeamertemplate{bibliography item}[default]
+	\bibitem[${1:Author}, ${2:year}]{$1$2}
+		$1
+		\newblock {\em ${3:title}}.
+		\newblock ${4:details}.
+
+
+snippet cols "columns (beamer)"
+	\begin{columns}
+		\column{0.5\textwidth}
+			${1:${VISUAL:content}}
+		\column{0.5\textwidth}
+	\end{columns}
+
+
+snippet def "Definition"
+	\begin{defn}[${1:Item}]\label{def:${2:todo}}
+		${3:${VISUAL:...}}
+	\end{defn}
+
+snippet thm "Theorem"
+	\begin{thm}[${1:Item}]\label{thm:${2:todo}}
+		${3:${VISUAL:...}}
+	\end{thm}
+
+snippet rem "Remark"
+	\begin{rem}
+		${1:${VISUAL:...}}
+	\end{rem}
+
+
+snippet S "Surf"
+	$\Surf$$0
+
+snippet Sout "S_outer"
+	$\Sout$$0
+
+snippet Sin "S_inner"
+	$\Sin$$0
+
+snippet S1 "S_{1}"
+	$\Sone$$0
+
+snippet S2 "S_{2}"
+	$\Stwo$$0
+
+snippet S12 "S_{1,2}"
+	$\Sonetwo$$0
+
+snippet Hout "H_outer"
+	$\Hout$$0
+
+snippet Hin "H_inner"
+	$\Hin$$0
+
+snippet H1 "H_{1}"
+	$\Hone$$0
+
+snippet H2 "H_{2}"
+	$\Htwo$$0
+
+snippet H12 "H_{1,2}"
+	$\Honetwo$$0
+
+snippet ttouch "T_touch"
+	$\ttouch$$0
+
+snippet T- "$\Theta_{-}$"
+	$\Theta_{-}$$0
+
+snippet T-m "\Theta_{-}"
+	\Theta_{-}$0
+
+snippet T+ "$\Theta_{+}$"
+	$\Theta_{+}$$0
+
+snippet T+m "\Theta_{+}"
+	\Theta_{+}$0
+
+snippet T+- "$\Theta_{+-}$"
+	$\Theta_{\pm}$$0
+
+snippet T+-m "\Theta_{+-}"
+	\Theta_{\pm}$0
+
+snippet Tn "$\Theta_{(n)}$"
+	$\Theta_{(n)}$$0
+
+snippet Tl "$\Theta_{(ell)}$"
+	$\Theta_{(\ell)}$$0
+
+snippet 4n "4-nabla"
+	{}^{(4)}\nabla$0
+
+
+snippet L "$\BW$"
+	$\Lambda$$0
+
+snippet AE9 "$\AEnine$"
+	$\AEnine$$0
+
+snippet K12 "$\Ktwelve$"
+	$\Ktwelve$$0
+
+snippet lK12 "laminated $\Ktwelve$"
+	laminated $\Ktwelve$$0
+
+snippet LK12 "Laminated $\Ktwelve$"
+	Laminated $\Ktwelve$$0
+
+snippet BW "$\BW$"
+	$\BW$$0
+
+
+snippet Proc "Pseudocode procedure"
+	\Procedure{${1:Name}}{${2:args}}
+		${3:${VISUAL:\\State}}
+	\EndProcedure
+
+snippet St "Pseudocode statement"
+	\State ${1:${VISUAL:...}}
+
+snippet Ret "Pseudocode return"
+	\State \Return ${1:${VISUAL:...}}
+
+snippet Cont "Pseudocode continue"
+	\State {\bfseries continue}$0
+
+snippet Break "Pseudocode break"
+	\State {\bfseries break}$0
+
+snippet gets "Pseudocode assignment"
+	\State ${1:\$x\$} \$\gets\$ ${2:${VISUAL:something}}
+
+snippet If "Pseudocode if-endif"
+	\If{$1}
+		${2:${VISUAL:\\State}}
+	\EndIf
+
+snippet For "Pseudocode for-loop"
+	\For{\$${1:i \\gets 1 \\text\{to\} 10}\$}
+		${2:${VISUAL:\\State}}
+	\EndFor
+
+snippet For "Pseudocode for-all-loop"
+	\ForAll{\$${1:x \\in X}\$}
+		${2:${VISUAL:\\State}}
+	\EndFor

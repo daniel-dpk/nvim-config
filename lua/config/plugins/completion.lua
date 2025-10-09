@@ -2,40 +2,7 @@ return {
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
-    dependencies = {
-      {
-        'L3MON4D3/LuaSnip',
-        version = "v2.*",
-        build = "make install_jsregexp",
-        dependencies = {
-          {
-            'rafamadriz/friendly-snippets',
-            config = function()
-              require('luasnip.loaders.from_vscode').lazy_load()
-            end,
-          },
-        },
-        config = function()
-          local ls = require('luasnip')
-          require('utils.snippets_reload')
-
-          vim.keymap.set('i', '<C-j>', ls.expand,
-            { silent = true, desc = "Snippet: expand" })
-
-          vim.keymap.set({ 'i', 's' }, '<C-l>', function() ls.jump(1) end,
-            { silent = true, desc = "Snippet: jump forward" })
-
-          vim.keymap.set({ 'i', 's' }, '<C-h>', function() ls.jump(-1) end,
-            { silent = true, desc = "Snippet: jump back" })
-
-          vim.keymap.set({ 'i', 's' }, '<C-e>', function()
-            if ls.choice_active() then
-              ls.change_choice(1)
-            end
-          end, { silent = true, desc = "Snippet: change active choice" })
-        end,
-      },
-    },
+    dependencies = { { 'L3MON4D3/LuaSnip' } },
 
     -- use a release tag to download pre-built binaries
     version = '1.*',
@@ -53,7 +20,10 @@ return {
       -- C-k: Toggle signature help (if signature.enabled = true)
       --
       -- See :h blink-cmp-config-keymap for defining your own keymap
-      keymap = { preset = 'default' },
+      keymap = {
+        preset = 'default',
+        ['<C-S-k>'] = { function(cmp) cmp.show({ providers = { 'snippets' } }) end },
+      },
 
       appearance = {
         -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
@@ -61,7 +31,6 @@ return {
         nerd_font_variant = 'mono'
       },
 
-      -- (Default) Only show the documentation popup when manually triggered
       completion = {
         menu = {
           auto_show = require('utils.blink_toggle').auto_show,
@@ -82,6 +51,7 @@ return {
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
       },
+      snippets = { preset = 'luasnip' },
 
       -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
       -- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
@@ -100,6 +70,8 @@ return {
       require('blink.cmp').setup(opts)
       vim.keymap.set('n', '<leader>tc', require('utils.blink_toggle').toggle,
         { desc = '[T]oggle [C]ompletion auto-show' })
+      vim.keymap.set('n', '<C-space>', require('utils.blink_toggle').toggle,
+        { desc = 'Toggle Completion auto-show' })
     end,
 
     --event = 'VimEnter',

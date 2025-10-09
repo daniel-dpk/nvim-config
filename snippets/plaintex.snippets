@@ -1,0 +1,71 @@
+snippet #! "LaTeX document template"
+	\documentclass[10pt,a4paper]{article}
+
+	\usepackage[DIV=14]{typearea}
+	\usepackage[utf8]{inputenc}
+	\usepackage[T1]{fontenc}
+	\usepackage{lmodern}
+
+	%\usepackage{graphicx}
+	%\usepackage{color}
+	%\usepackage{calc}
+	%\usepackage[export]{adjustbox} % adds \`frame\` option to \includegraphics{}
+	%\usepackage{amsmath}
+	%\usepackage{amssymb}
+	%\usepackage{hyperref} % generate a TOC in the pdf file for faster navigation
+	%\usepackage{float} % force figure placement via [H]
+
+	%\usepackage{ngerman}
+
+	%\usepackage[small]{titlesec} % smaller headings
+	%\usepackage[tiny]{titlesec} % much smaller headings
+
+	%\usepackage[style=numeric,sorting=none,giveninits=true,backend=biber]{biblatex}
+	%\addbibresource{bibliography.bib}
+
+
+	%\usepackage{mathrsfs}
+	%\DeclareSymbolFontAlphabet{\mathrsfs}{rsfs}
+	%\newcommand{\scrI}{\mathrsfs{I}}
+
+
+	%% Don't indent paragraphs.
+	%\setlength{\parindent}{0pt}
+	%\setlength{\parskip}{\medskipamount}
+
+
+	\begin{document}
+	%\selectlanguage{ngerman}
+
+
+	\section{First section}
+
+	\subsection{A sub section}
+
+	Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+	tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
+	vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+	no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+
+	%\printbibliography
+
+	\end{document}
+
+
+snippet vim "Vim mappings for compiling"
+	% vimExec{
+	%   nnoremap <buffer> ,,c :update<CR>:silent !cd "%:p:h" && pdflatex -interaction=batchmode "%:t"<CR>
+	%   nnoremap <buffer> ,,C :update<CR>:silent !cd "%:p:h" && gnome-terminal --maximize -- bash -c "pdflatex \"%:t\" && read -s -n 1 -p 'Press any key to continue...'"<CR>
+	%   nnoremap <buffer> ,,v :update<CR>:silent !cd "%:p:h" && evince "%:t:r.pdf" &<CR>
+	% }vimExec
+
+
+snippet vim "Vim mappings for compiling (with biber)"
+	% vimExec{
+	%  nnoremap <buffer> ,,c :update<CR>:silent !cd "%:p:h" && pdflatex -interaction=batchmode "%:t"<CR>
+	%  nnoremap <buffer> ,,C :update<CR>:silent !cd "%:p:h" && gnome-terminal --maximize -- bash -c "pdflatex \"%:t\" && read -s -n 1 -p 'Press any key to continue...'"<CR>
+	%  nnoremap <buffer> ,,b :update<CR>:silent !cd "%:p:h" && biber "%:t:r"<CR>
+	%  nnoremap <buffer> ,,B :update<CR>:silent !cd "%:p:h" && gnome-terminal --maximize -- bash -c "biber \"%:t:r\" && read -s -n 1 -p 'Press any key to continue...'"<CR>
+	%  nnoremap <buffer> ,,v :update<CR>:silent !cd "%:p:h" && evince "%:t:r.pdf" &<CR>
+	% }vimExec

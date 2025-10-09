@@ -1,0 +1,18 @@
+snippet f "function"
+	function! s:${1:functionName}()
+		${2:${VISUAL}}
+	endfunction
+
+
+snippet ftafter "Template for a after/ftplugin/..."
+	" Store the cpo and set it to the vim default.
+	let s:save_cpo = &cpo
+	set cpo&vim
+
+
+	" Customizations
+	${1:setlocal ${2:formatoptions-=o}}
+
+
+	" Restore the previous cpo.
+	let &cpo = s:save_cpo
