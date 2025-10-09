@@ -35,9 +35,9 @@ TODO:
   [x] Python indentation fixes
   [x] swap two windows
   [x] move between instance methods and classes/functions
-  [ ] snippets
+  [x] snippets
       [x] decide on engine
-      [ ] port old snippets (especially various docstring ones)
+      [x] port old snippets (especially various docstring ones)
   [x] toggle spell
   [ ] vim-test
   [ ] go through old Vim config and port remaining stuff
