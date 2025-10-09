@@ -1,6 +1,6 @@
 return {
   'jamessan/vim-gnupg',
-  config = function()
+  init = function()
     vim.g.GPGUsePipes = 1
     vim.g.GPGPreferSign = 1
     --vim.g.GPGDebugLevel = 3
