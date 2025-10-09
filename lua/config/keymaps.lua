@@ -9,7 +9,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 --vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set('n', '<leader>q', function()
   require('utils.loclist_sanitize').populate_and_sanitize({ open = true })
-  --vim.cmd("Telescope loclist")
+  --vim.cmd('Telescope loclist')
 end, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Spell checking
@@ -20,10 +20,10 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 vim.keymap.set('t', '<C-o>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- up/down on wrapped lines
-vim.keymap.set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-vim.keymap.set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-vim.keymap.set({ "n", "x" }, "_", "v:count == 0 ? 'g^' : '_'", { desc = "Start", expr = true, silent = true })
-vim.keymap.set({ "n", "x" }, "$", "v:count == 0 ? 'g$' : '$'", { desc = "End", expr = true, silent = true })
+vim.keymap.set({ 'n', 'x' }, 'j', "v:count == 0 ? 'gj' : 'j'", { desc = 'Down', expr = true, silent = true })
+vim.keymap.set({ 'n', 'x' }, 'k', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
+vim.keymap.set({ 'n', 'x' }, '_', "v:count == 0 ? 'g^' : '_'", { desc = 'Start', expr = true, silent = true })
+vim.keymap.set({ 'n', 'x' }, '$', "v:count == 0 ? 'g$' : '$'", { desc = 'End', expr = true, silent = true })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -40,7 +40,7 @@ vim.keymap.set('n', '<C-Right>', ':tabnext<CR>', { desc = 'Go to next tab' })
 vim.keymap.set('n', '<S-Left>', ':tabmove -1<CR>', { desc = 'Move tab left' })
 vim.keymap.set('n', '<S-Right>', ':tabmove +1<CR>', { desc = 'Move tab right' })
 vim.keymap.set('n', 'tt', ':tab split<CR>', { desc = 'New tab' })
--- " Close current tab leaving us on previous tab (instead of next).
+-- Close current tab leaving us on previous tab (instead of next).
 vim.keymap.set('n', 'TT', ':silent! tabmove -1<CR>:tabclose<CR>', { desc = 'Close tab' })
 
 -- Window resizing
@@ -59,10 +59,10 @@ local function nav(cmd)
     vim.notify(err, vim.log.levels.ERROR)
   end
 end
-vim.keymap.set("n", "<C-S-j>", function() nav(vim.cmd.cnext) end, { desc = "Next Quickfix" })
-vim.keymap.set("n", "<C-S-k>", function() nav(vim.cmd.cprev) end, { desc = "Previous Quickfix" })
-vim.keymap.set("n", "<A-S-j>", function() nav(vim.cmd.lnext) end, { desc = "Next Location" })
-vim.keymap.set("n", "<A-S-k>", function() nav(vim.cmd.lprev) end, { desc = "Previous Location" })
+vim.keymap.set('n', '<C-S-j>', function() nav(vim.cmd.cnext) end, { desc = 'Next Quickfix' })
+vim.keymap.set('n', '<C-S-k>', function() nav(vim.cmd.cprev) end, { desc = 'Previous Quickfix' })
+vim.keymap.set('n', '<A-S-j>', function() nav(vim.cmd.lnext) end, { desc = 'Next Location' })
+vim.keymap.set('n', '<A-S-k>', function() nav(vim.cmd.lprev) end, { desc = 'Previous Location' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
