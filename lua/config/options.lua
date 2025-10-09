@@ -2,6 +2,8 @@ vim.g.clipboard = 'osc52'
 
 vim.o.textwidth = 78
 
+vim.o.foldlevelstart = 99
+
 vim.o.shiftwidth = 4
 vim.o.expandtab = true
 vim.o.softtabstop = 4
