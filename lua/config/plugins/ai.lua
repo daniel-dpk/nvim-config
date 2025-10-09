@@ -22,7 +22,7 @@ return {
       vim.keymap.set({ 'n', 'x' }, '<leader>oa', function() oc.ask('@this: ', { submit = true }) end, { desc = '[A]sk about this...' })
       vim.keymap.set({ 'n', 'x' }, '<leader>o+', function() oc.prompt('@this') end, { desc = 'Add buffer/selection to prompt' })
       vim.keymap.set({ 'n', 'x' }, '<leader>oe', function() oc.prompt('Explain @this and its context', { submit = true }) end, { desc = '[E]xplain this' })
-      vim.keymap.set({ 'n', 'v' }, '<leader>os', function() oc.select() end, { desc = 'Select prompt...' })
+      vim.keymap.set({ 'n', 'x' }, '<leader>os', function() oc.select() end, { desc = 'Select prompt...' })
 
       vim.keymap.set({ 'n', 'x' }, '<leader>od', function()
         oc.prompt(
