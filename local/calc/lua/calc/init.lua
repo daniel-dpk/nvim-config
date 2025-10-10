@@ -21,6 +21,19 @@ local function factorial(n)
   return result
 end
 
+local function debug_log(...)
+  local parts = { '[calc-debug]' }
+  for i = 1, select('#', ...) do
+    local value = select(i, ...)
+    if type(value) == 'table' then
+      parts[#parts + 1] = vim.inspect(value)
+    else
+      parts[#parts + 1] = tostring(value)
+    end
+  end
+  print(table.concat(parts, ' '))
+end
+
 local math_aliases = {
   'abs',
   'acos',
@@ -179,24 +192,61 @@ local function normalize_output_mode(arg)
 end
 
 local function get_visual_selection()
+  local mode = vim.fn.mode()
+  local visual_mode = vim.fn.visualmode()
+  debug_log('visual mode evaluate: current mode', mode, 'visualmode', visual_mode)
+
   local bufnr = vim.api.nvim_get_current_buf()
-  local start_pos = vim.fn.getpos("'<")
-  local end_pos = vim.fn.getpos("'>")
-  local start_row = start_pos[2] - 1
-  local start_col = start_pos[3] - 1
-  local end_row = end_pos[2] - 1
-  local end_col = end_pos[3]
+  local start_pos = vim.fn.getpos('v')
+  local cursor_pos = vim.fn.getpos('.')
+  debug_log('visual mode evaluate: raw marks', { start = start_pos, cursor = cursor_pos })
+
+  local start_row = start_pos[2]
+  local start_col = start_pos[3]
+  local end_row = cursor_pos[2]
+  local end_col = cursor_pos[3]
+
+  if start_row == 0 or end_row == 0 then
+    debug_log('visual mode evaluate: marks missing, aborting')
+    return nil
+  end
+
+  if start_row > end_row or (start_row == end_row and start_col > end_col) then
+    debug_log('visual mode evaluate: swapping marks', start_row, start_col, end_row, end_col)
+    start_row, end_row = end_row, start_row
+    start_col, end_col = end_col, start_col
+  end
+
+  start_row = start_row - 1
+  end_row = end_row - 1
+  start_col = math.max(start_col - 1, 0)
+  end_col = math.max(end_col, start_col + 1)
+  if visual_mode == 'V' and cursor_pos[3] <= 1 then
+    local line = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1] or ''
+    end_col = #line
+  end
+
+  debug_log('visual mode evaluate: adjusted start/end (0-index)', start_row, start_col, end_row, end_col)
+
+  local last_line = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1] or ''
+  end_col = math.min(end_col, #last_line)
+  debug_log('visual mode evaluate: clamped end_col', end_col, 'line length', #last_line)
 
   local lines = vim.api.nvim_buf_get_text(bufnr, start_row, start_col, end_row, end_col, {})
-  if #lines == 0 then return nil end
+  debug_log('visual mode evaluate: extracted lines', lines)
+  if #lines == 0 then
+    debug_log('visual mode evaluate: no lines captured')
+    return nil
+  end
 
   if #lines > 1 then
     notify_error('calc visual evaluation supports single-line selections only')
+    debug_log('visual mode evaluate: multi-line selection rejected')
     return nil
   end
 
   local raw = lines[1]
-  return {
+  local selection = {
     bufnr = bufnr,
     start_row = start_row,
     start_col = start_col,
@@ -206,7 +256,16 @@ local function get_visual_selection()
     expr = vim.trim(raw),
     indent = raw:match('^%s*') or '',
   }
+  debug_log('visual mode evaluate: final selection', selection)
+
+  if mode == 'v' or mode == 'V' or mode == '\022' or mode == 's' or mode == 'S' or mode == '\019' then
+    debug_log('visual mode evaluate: leaving selection mode after capture')
+    vim.cmd("normal! \\<Esc>")
+  end
+
+  return selection
 end
+
 
 local function apply_visual_result(selection, result_str, mode)
   local bufnr = selection.bufnr
@@ -294,9 +353,8 @@ local function apply_line_result(bufnr, row, info, result_str, mode)
   end
 
   local current_line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, true)[1]
-  vim.api.nvim_buf_set_text(bufnr, row, info.start_col, row, info.end_col, { prefix .. info.expr })
   local indent = current_line:match('^%s*') or ''
-  vim.api.nvim_buf_set_lines(bufnr, row + 1, row + 1, true, { indent .. info.expr .. ' = ' .. result_str })
+  vim.api.nvim_buf_set_lines(bufnr, row + 1, row + 1, true, { indent .. result_str })
 end
 
 function M.evaluate_visual(opts)
