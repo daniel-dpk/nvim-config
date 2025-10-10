@@ -221,7 +221,7 @@ local function get_visual_selection()
   end_row = end_row - 1
   start_col = math.max(start_col - 1, 0)
 
-  if mode == 'V' or visual_mode == 'V' then
+  if mode == 'V' then
     start_col = 0
     end_col = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1]
     end_col = #(end_col or '')
