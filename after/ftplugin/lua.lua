@@ -2,6 +2,15 @@ local set = vim.opt_local
 
 set.shiftwidth = 2
 
+-- Create custom surrounding for Lua's block string `[[...]]`
+vim.b.minisurround_config = {
+  custom_surroundings = {
+    ['s'] = {
+      input = { '%[%[().-()%]%]' },
+      output = { left = '[[', right = ']]' },
+    },
+  },
+}
 
 local function map(mode, l, r, opts)
   opts = opts or {}

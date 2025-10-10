@@ -43,20 +43,26 @@ return {
         },
       },
 
-      -- Document existing key chains
       spec = {
+        -- Document existing key chains
         { '<leader>s', group = '[S]ession' },
         { '<leader>f', group = '[F]ind (Telescope)' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>o', group = '[O]penCode', mode = { 'n', 'v' } },
         { 'gr',        group = 'LSP functions' },
+        -- Document existing keymaps
         { 'gra',       desc = 'Code [A]ction' },
         { 'gri',       desc = 'List [I]mplementations' },
         { 'grn',       desc = 'Re[N]ame all references' },
         { 'grr',       desc = 'List [R]eferences' },
         { 'grt',       desc = 'Jump to [T]ype definition' },
         { 'gO' ,       desc = 'List symbols in buffer' },
+        { 'ys' ,       desc = '[y]ou [s]urround' },
+        { 'yss' ,      desc = '[y]ou [s]urround line' },
+        { 'ds' ,       desc = '[d]elete [s]urround' },
+        { 'cs' ,       desc = '[c]hange [s]urround' },
+        { 'S' ,        desc = '[S]urround', mode = { 'x' } },
       },
     },
     keys = {
