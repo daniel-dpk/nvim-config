@@ -7,15 +7,45 @@ return {
     { 'nvim-telescope/telescope-live-grep-args.nvim', version = '^1.0.0' },
   },
   config = function()
+    local actions = require('telescope.actions')
     local lga_actions = require('telescope-live-grep-args.actions')
+
+    local function feedkeys(keys, mode)
+      vim.api.nvim_feedkeys(
+        vim.api.nvim_replace_termcodes(keys, true, false, true),
+        mode, false
+      )
+    end
+
     require('telescope').setup {
+      defaults = {
+        mappings = {
+          i = {
+            ['<C-Up>'] = actions.cycle_history_prev,
+            ['<C-Down>'] = actions.cycle_history_next,
+            ['<C-j>'] = actions.move_selection_next,
+            ['<C-k>'] = actions.move_selection_previous,
+            ['<C-a>'] = function() feedkeys('<Home>', 'i') end,
+            ['<C-e>'] = function() feedkeys('<End>', 'i') end,
+            ['<esc>'] = actions.close,
+            ['<C-c>'] = false,
+          },
+          n = {
+            ['q'] = actions.close,
+            ['<C-c>'] = actions.close,
+          },
+        },
+        cache_picker = {
+          num_pickers = 10,
+          ignore_empty_prompt = true,
+        },
+      },
       extensions = {
         fzf = {},
         live_grep_args = {
           auto_quoting = true,
           mappings = { -- extend mappings
             i = {
-              ['<C-k>'] = lga_actions.quote_prompt(),
               ['<C-i>'] = lga_actions.quote_prompt({ postfix = ' --iglob ' }),
             },
           },
@@ -37,6 +67,8 @@ return {
 
     vim.keymap.set('n', '<leader>fB', builtin.builtin, { desc = 'Telescope built-in commands' })
     vim.keymap.set('n', '<leader>fr', builtin.lsp_references, { desc = 'Telescope references (LSP)' })
+    vim.keymap.set('n', '<leader>fR', builtin.resume, { desc = 'Telescope [R]esume last' })
+    vim.keymap.set('n', '<leader>fp', builtin.resume, { desc = 'Telescope last [p]ickers' })
 
     local lga = require('telescope').extensions.live_grep_args
     vim.keymap.set('n', '<leader>fg', function()
