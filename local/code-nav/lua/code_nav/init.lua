@@ -1,18 +1,18 @@
-local Targets = require("code_nav.targets")
+local Targets = require('code_nav.targets')
 
 local M = {
   _cfg = {
-    filetypes = { "python", "lua", "c", "cpp" }, -- which FTs should auto-attach
+    filetypes = { 'python', 'lua', 'c', 'cpp' }, -- which FTs should auto-attach
     wrap = true,                                 -- wrap-around like Vim's 'W'
     keymaps = {
-      same = { prev = "<A-k>", next = "<A-j>" },
-      top  = { prev = "<C-Up>", next = "<C-Down>" },
+      same = { prev = '<A-k>', next = '<A-j>' },
+      top  = { prev = '<C-Up>', next = '<C-Down>' },
     },
   }
 }
 
 local function get_targets_for(ft)
-  return Targets[ft] or Targets["*"] or {}
+  return Targets[ft] or Targets['*'] or {}
 end
 
 local function node_is_one_of(node, wanted)
@@ -31,7 +31,7 @@ local function get_root(bufnr, lang)
 end
 
 local function get_node_at_cursor()
-  local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
+  local ok, ts_utils = pcall(require, 'nvim-treesitter.ts_utils')
   if ok and ts_utils.get_node_at_cursor then
     return ts_utils.get_node_at_cursor()
   end
@@ -56,7 +56,7 @@ end
 local function find_current_index(items, row)
   for i, node in ipairs(items) do
     local sr, sc, er, _ = node:range()
-    local definition = node:field("definition")
+    local definition = node:field('definition')
     local def = definition and definition[1]
     local def_sr, def_sc
     if def then
@@ -88,22 +88,22 @@ local function resolve_scope(node, root, wanted)
 end
 
 local function move_to_node_start(node)
-  local name = node:field("name")
+  local name = node:field('name')
   local target = (name and name[1]) and name[1] or node
   if target == node then
-    local definition = node:field("definition")
+    local definition = node:field('definition')
     if definition and definition[1] then
-      local def_name = definition[1]:field("name")
+      local def_name = definition[1]:field('name')
       target = (def_name and def_name[1]) and def_name[1] or definition[1]
     end
   end
   local row, col = target:range()
   local cmd = string.format('normal! %dG%d|', row + 1, col + 1)
   vim.cmd(cmd)
-  vim.cmd("normal! zv")
+  vim.cmd('normal! zv')
 end
 
--- direction: "next" | "prev"; level: "same" | "top"
+-- direction: 'next' | 'prev'; level: 'same' | 'top'
 function M.jump(direction, level)
   local bufnr = 0
   local ft = vim.bo[bufnr].filetype
@@ -116,7 +116,7 @@ function M.jump(direction, level)
 
   local scope
   local items
-  if level == "top" then
+  if level == 'top' then
     scope = root
     items = collect_items_in_scope(scope, wanted)
   else
@@ -142,7 +142,7 @@ function M.jump(direction, level)
     end
   end
   local idx
-  if direction == "next" then
+  if direction == 'next' then
     if current_idx and current_idx < #items then
       idx = current_idx + 1
     else
@@ -176,25 +176,25 @@ function M.attach(bufnr)
   local nopts = { buffer = bufnr, silent = true }
   local same, top = M._cfg.keymaps.same, M._cfg.keymaps.top
 
-  vim.keymap.set("n", same.prev, function() M.jump("prev", "same") end, nopts)
-  vim.keymap.set("n", same.next, function() M.jump("next", "same") end, nopts)
-  vim.keymap.set("n", top.prev,  function() M.jump("prev", "top")  end, nopts)
-  vim.keymap.set("n", top.next,  function() M.jump("next", "top")  end, nopts)
+  vim.keymap.set('n', same.prev, function() M.jump('prev', 'same') end, nopts)
+  vim.keymap.set('n', same.next, function() M.jump('next', 'same') end, nopts)
+  vim.keymap.set('n', top.prev,  function() M.jump('prev', 'top')  end, nopts)
+  vim.keymap.set('n', top.next,  function() M.jump('next', 'top')  end, nopts)
 
   -- Visual mode: restore selection after jump
   local vopts = { buffer = bufnr, silent = true }
-  vim.keymap.set("x", same.prev, function() M.jump("prev", "same"); vim.cmd("redraw") end, vopts)
-  vim.keymap.set("x", same.next, function() M.jump("next", "same"); vim.cmd("redraw") end, vopts)
-  vim.keymap.set("x", top.prev,  function() M.jump("prev", "top");  vim.cmd("redraw") end, vopts)
-  vim.keymap.set("x", top.next,  function() M.jump("next", "top");  vim.cmd("redraw") end, vopts)
+  vim.keymap.set('x', same.prev, function() M.jump('prev', 'same'); vim.cmd('redraw') end, vopts)
+  vim.keymap.set('x', same.next, function() M.jump('next', 'same'); vim.cmd('redraw') end, vopts)
+  vim.keymap.set('x', top.prev,  function() M.jump('prev', 'top');  vim.cmd('redraw') end, vopts)
+  vim.keymap.set('x', top.next,  function() M.jump('next', 'top');  vim.cmd('redraw') end, vopts)
 end
 
 function M.setup(opts)
-  M._cfg = vim.tbl_deep_extend("force", M._cfg, opts or {})
+  M._cfg = vim.tbl_deep_extend('force', M._cfg, opts or {})
 
   -- Auto-attach on the filetypes you specify
   if M._cfg.filetypes and #M._cfg.filetypes > 0 then
-    vim.api.nvim_create_autocmd("FileType", {
+    vim.api.nvim_create_autocmd('FileType', {
       pattern = M._cfg.filetypes,
       callback = function(args)
         -- Only attach if parser exists, to avoid noise

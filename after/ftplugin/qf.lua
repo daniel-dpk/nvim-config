@@ -2,8 +2,8 @@ local set = vim.opt_local
 
 set.wrap = false
 
-vim.keymap.set("n", "q", ":q<CR>", { desc = 'Close window', buffer = 0 })
-vim.keymap.set("n", "o", function()
+vim.keymap.set('n', 'q', ':q<CR>', { desc = 'Close window', buffer = 0 })
+vim.keymap.set('n', 'o', function()
   vim.cmd('silent! normal! <CR>')
   vim.cmd('wincmd p')
 end, { desc = 'View entry', buffer = 0 })

@@ -2,11 +2,11 @@ local M = {}
 
 -- Replace newlines/tabs with spaces and collapse whitespace
 local function clean_text(s)
-  if type(s) ~= "string" then return s end
-  s = s:gsub("\r\n?", " ") -- CRLF/CR -> space
-  s = s:gsub("\n", " ")    -- LF -> space
-  s = s:gsub("\t", " ")    -- tabs -> space
-  s = s:gsub("%s+", " ")   -- collapse whitespace runs
+  if type(s) ~= 'string' then return s end
+  s = s:gsub('\r\n?', ' ') -- CRLF/CR -> space
+  s = s:gsub('\n', ' ')    -- LF -> space
+  s = s:gsub('\t', ' ')    -- tabs -> space
+  s = s:gsub('%s+', ' ')   -- collapse whitespace runs
   return s
 end
 
@@ -40,7 +40,7 @@ end
 
 -- One-shot: populate -> sanitize -> (optionally) open
 function M.populate_and_sanitize(opts)
-  opts = vim.tbl_extend("keep", opts or {}, { open = false })
+  opts = vim.tbl_extend('keep', opts or {}, { open = false })
   vim.diagnostic.setloclist(opts)
   M.sanitize_loclist(0)
 end

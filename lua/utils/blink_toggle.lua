@@ -11,7 +11,7 @@ end
 
 function M.toggle()
   M.state = not M.state
-  local state_str = M.state and "enabled" or "disabled"
+  local state_str = M.state and 'enabled' or 'disabled'
   vim.notify('completions auto-show: ' .. state_str)
 end
 

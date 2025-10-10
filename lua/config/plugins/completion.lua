@@ -36,9 +36,9 @@ return {
           auto_show = require('utils.blink_toggle').auto_show,
           draw = {
             columns = {
-              { "kind_icon" },
-              { "label", "label_description", gap = 1 },
-              { "kind" },
+              { 'kind_icon' },
+              { 'label', 'label_description', gap = 1 },
+              { 'kind' },
             },
           },
         },
@@ -54,17 +54,17 @@ return {
       snippets = { preset = 'luasnip' },
 
       -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
-      -- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
-      -- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
+      -- You may use a lua implementation instead by using `implementation = 'lua'` or fallback to the lua implementation,
+      -- when the Rust fuzzy matcher is not available, by using `implementation = 'prefer_rust'`
       --
       -- See the fuzzy documentation for more information
-      fuzzy = { implementation = "prefer_rust_with_warning" },
+      fuzzy = { implementation = 'prefer_rust_with_warning' },
 
       -- Experimental signature help support
       signature = { enabled = true },
     },
 
-    opts_extend = { "sources.default" },
+    opts_extend = { 'sources.default' },
 
     config = function(_, opts)
       require('blink.cmp').setup(opts)

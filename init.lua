@@ -28,7 +28,7 @@ TODO:
   [x] work with encrypted files
   [x] Python LSP does not know how to format code; also, no code actions
   [x] modify hybrid colorscheme to clearly show statusline and window borders
-  [x] press 'o' in loclist/qfixlist to "view" place (stay in list)
+  [x] press 'o' in loclist/qfixlist to 'view' place (stay in list)
   [x] toggle which-key
   [x] toggle suggestions
   [x] map h/j/k/l for wrapped lines

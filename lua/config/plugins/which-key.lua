@@ -61,14 +61,14 @@ return {
     },
     keys = {
       {
-        "<leader>?",
+        '<leader>?',
         function()
-          require("which-key").show({ global = false })
+          require('which-key').show({ global = false })
         end,
-        desc = "Buffer Local Keymaps (which-key)",
+        desc = 'Buffer Local Keymaps (which-key)',
       },
       {
-        "<leader>tw",
+        '<leader>tw',
         require('utils.whichkey_toggle').toggle,
         desc = '[T]oggle [W]hich-key',
       }

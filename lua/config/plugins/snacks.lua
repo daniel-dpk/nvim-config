@@ -9,7 +9,7 @@ return {
       bigfile = { enabled = true },
       input = {
         enabled = true,
-        -- This fixes the "cursor stuck to first column" bug. Might be related
+        -- This fixes the 'cursor stuck to first column' bug. Might be related
         -- to SSH+tmux, not sure though.
         expand = false,
         win = {
@@ -18,8 +18,8 @@ return {
             textwidth = 0, -- auto-wrapping makes it unusable
           },
           keys = {
-            i_ctrl_e = { '<c-e>', '<End>', mode = "i", expr = true },
-            i_ctrl_a = { '<c-a>', '<Home>', mode = "i", expr = true },
+            i_ctrl_e = { '<c-e>', '<End>', mode = 'i', expr = true },
+            i_ctrl_a = { '<c-a>', '<Home>', mode = 'i', expr = true },
           },
         },
       },

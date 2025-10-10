@@ -11,7 +11,7 @@ return {
       vim.g.opencode_opts = {
         terminal = {
           win = {
-            position = "left",
+            position = 'left',
           },
         },
       }

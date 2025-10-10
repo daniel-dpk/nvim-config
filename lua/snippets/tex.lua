@@ -42,20 +42,20 @@ return {
     \item <>
   ]], { dyn_sel(1) })),
 
-  s({ trig = 'big(' }, fmta("\\big( <> \\big)", { dyn_sel(1) })),
-  s({ trig = 'big[' }, fmta("\\big[ <> \\big]", { dyn_sel(1) })),
-  s({ trig = 'big{' }, fmta("\\big\\{ <> \\big\\}", { dyn_sel(1) })),
-  s({ trig = 'Big(' }, fmta("\\Big( <> \\Big)", { dyn_sel(1) })),
-  s({ trig = 'Big[' }, fmta("\\Big[ <> \\Big]", { dyn_sel(1) })),
-  s({ trig = 'Big{' }, fmta("\\Big\\{ <> \\Big\\}", { dyn_sel(1) })),
+  s({ trig = 'big(' }, fmta('\\big( <> \\big)', { dyn_sel(1) })),
+  s({ trig = 'big[' }, fmta('\\big[ <> \\big]', { dyn_sel(1) })),
+  s({ trig = 'big{' }, fmta('\\big\\{ <> \\big\\}', { dyn_sel(1) })),
+  s({ trig = 'Big(' }, fmta('\\Big( <> \\Big)', { dyn_sel(1) })),
+  s({ trig = 'Big[' }, fmta('\\Big[ <> \\Big]', { dyn_sel(1) })),
+  s({ trig = 'Big{' }, fmta('\\Big\\{ <> \\Big\\}', { dyn_sel(1) })),
 
-  s({ trig = 'lr<' }, fmta("\\langle <> \\rangle", { dyn_sel(1) })),
+  s({ trig = 'lr<' }, fmta('\\langle <> \\rangle', { dyn_sel(1) })),
 
-  s({ trig = 'fr', desc = '\\frac{}{}' }, fmta("\\frac{<>}{<>}", {
+  s({ trig = 'fr', desc = '\\frac{}{}' }, fmta('\\frac{<>}{<>}', {
     dyn_sel(1), i(2)
   })),
 
-  s({ trig = 'tfr', desc = '\\tfrac{}{}' }, fmta("\\tfrac{<>}{<>}", {
+  s({ trig = 'tfr', desc = '\\tfrac{}{}' }, fmta('\\tfrac{<>}{<>}', {
     dyn_sel(1), i(2)
   })),
 

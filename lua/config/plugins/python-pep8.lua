@@ -5,7 +5,7 @@ return {
     --    indent = { enable = true },
     -- in lua/config/plugins/treesitter.lua.
     enabled = false,
-    event = "BufEnter *.py",
-    ft = {"python", "pyrex"},
+    event = 'BufEnter *.py',
+    ft = {'python', 'pyrex'},
   }
 }

@@ -124,7 +124,7 @@ end
 
 
 ---Populate function arguments via a dynamic node.
----Inserts "self" argument if inside an instance function.
+---Inserts 'self' argument if inside an instance function.
 ---@param jump_index integer
 ---@param self_name string|nil
 function M.dyn_args(jump_index, self_name)

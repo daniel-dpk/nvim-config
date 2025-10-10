@@ -1,5 +1,5 @@
 -- Only for git filetype, and skip real diff windows
-if vim.bo.filetype ~= "git" or vim.wo.diff then
+if vim.bo.filetype ~= 'git' or vim.wo.diff then
   return
 end
 

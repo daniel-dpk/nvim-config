@@ -64,4 +64,4 @@ vim.o.confirm = true
 
 vim.o.hidden = true
 
-vim.o.sessionoptions = "buffers,curdir,folds,globals,tabpages,winpos,winsize"
+vim.o.sessionoptions = 'buffers,curdir,folds,globals,tabpages,winpos,winsize'

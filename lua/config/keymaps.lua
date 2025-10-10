@@ -66,7 +66,7 @@ vim.keymap.set('n', '<A-S-k>', function() nav(vim.cmd.lprev) end, { desc = 'Prev
 
 -- Copy to system clipboard
 vim.keymap.set('n', '<LocalLeader>c', function()
-  vim.fn.setreg("+", vim.fn.substitute(vim.fn.getline("."), "^\\s*", "", ""))
+  vim.fn.setreg('+', vim.fn.substitute(vim.fn.getline('.'), '^\\s*', '', ''))
 end, { desc = '[C]opy line' })
 
 vim.keymap.set('x', '<LocalLeader>c', '"+y', { desc = '[C]opy lines' })
