@@ -69,7 +69,7 @@ vim.keymap.set('n', '<LocalLeader>c', function()
   vim.fn.setreg('+', vim.fn.substitute(vim.fn.getline('.'), '^\\s*', '', ''))
 end, { desc = '[C]opy line' })
 
-vim.keymap.set('x', '<LocalLeader>c', '"+y', { desc = '[C]opy lines' })
+vim.keymap.set('x', '<LocalLeader>c', '"+y', { desc = '[C]opy selection' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
