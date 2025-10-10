@@ -1,6 +1,7 @@
 local M = {
   _cfg = {
     output = 'append',
+    debug = false,
   },
 }
 
@@ -22,6 +23,7 @@ local function factorial(n)
 end
 
 local function debug_log(...)
+  if not M._cfg.debug then return end
   local parts = { '[calc-debug]' }
   for i = 1, select('#', ...) do
     local value = select(i, ...)
