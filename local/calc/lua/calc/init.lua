@@ -220,10 +220,14 @@ local function get_visual_selection()
   start_row = start_row - 1
   end_row = end_row - 1
   start_col = math.max(start_col - 1, 0)
-  end_col = math.max(end_col, start_col + 1)
-  if visual_mode == 'V' and cursor_pos[3] <= 1 then
-    local line = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1] or ''
-    end_col = #line
+
+  if mode == 'V' or visual_mode == 'V' then
+    start_col = 0
+    end_col = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1]
+    end_col = #(end_col or '')
+    debug_log('visual mode evaluate: line-wise selection detected, updated range', start_row, start_col, end_row, end_col)
+  else
+    end_col = math.max(end_col, start_col + 1)
   end
 
   debug_log('visual mode evaluate: adjusted start/end (0-index)', start_row, start_col, end_row, end_col)
