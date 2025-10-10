@@ -39,6 +39,8 @@ TODO:
       [x] decide on engine
       [x] port old snippets (especially various docstring ones)
   [x] toggle spell
+  [x] telescope grep with file pattern
   [ ] vim-test
+  [ ] tex building commands?
   [ ] go through old Vim config and port remaining stuff
 --]]
