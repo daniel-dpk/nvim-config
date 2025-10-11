@@ -86,7 +86,7 @@ def configure_runtime(verbose: bool, dry_run: bool) -> None:
     _RUNTIME_DRY_RUN = dry_run
 
 def _forward_signal(signum, _):
-    for p in _CHILDREN:
+    for p in list(_CHILDREN): # copy list to avoid race with remove()
         try:
             if p and p.poll() is None:
                 p.send_signal(signum)
@@ -152,10 +152,16 @@ def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
     t2 = Thread(target=pump, args=(p.stderr, sys.stderr), daemon=True)  # type: ignore[arg-type]
     t1.start()
     t2.start()
-    p.wait()
-    t1.join()
-    t2.join()
-    return p.returncode
+    try:
+        p.wait()
+        t1.join()
+        t2.join()
+        return p.returncode
+    finally:
+        try:
+            _CHILDREN.remove(p)
+        except ValueError:
+            pass
 
 def run_simple(cmd: list[str], **kw) -> int:
     log_command(cmd, **kw)
@@ -305,9 +311,21 @@ def main():
     env_map, want_tty = append_pytest_color(env_map, color_policy, args.no_color)
 
     # Optional path rewrite
-    rewrite_remote = (cfg.get("rewrite_prefix_remote") or pycfg.get("rewrite_prefix_remote") or r.get("rewrite_prefix_remote") or "")
-    rewrite_local = (cfg.get("rewrite_prefix_local") or pycfg.get("rewrite_prefix_local") or r.get("rewrite_prefix_local") or "")
-    line_filter = make_line_filter(str(rewrite_remote), str(rewrite_local), args.no_color)
+    rewrite_remote = (
+        cfg.get("rewrite_prefix_remote")
+        or pycfg.get("rewrite_prefix_remote")
+        or r.get("rewrite_prefix_remote")
+        or ""
+    )
+    rewrite_local = (
+        cfg.get("rewrite_prefix_local")
+        or pycfg.get("rewrite_prefix_local")
+        or r.get("rewrite_prefix_local")
+        or ""
+    )
+    line_filter = make_line_filter(
+        str(rewrite_remote), str(rewrite_local), args.no_color
+    )
 
     # Render plan/config if requested
     if args.print_config:
