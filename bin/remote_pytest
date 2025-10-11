@@ -39,6 +39,7 @@ class Args:
     print_plan: bool
     print_config: bool
     pytest_argv: List[str]
+    dashdash: bool
 
 
 # ---------- TOML parsing ----------
