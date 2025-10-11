@@ -136,26 +136,6 @@ def print_plan(remote_name, host, remote_root, python, color, rsync_ex, args):
     }
     print("PLAN " + json.dumps(plan, ensure_ascii=False))
 
-def run_checked(cmd: list[str], **kw) -> int:
-    log_command(cmd, **kw)
-    if _RUNTIME_DRY_RUN:
-        return 0
-    # Launch and stream (no deadlocks): stdout/stderr -> parent streams
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, **kw)
-    _CHILDREN.append(p)
-    def pump(src, dst):
-        for line in iter(src.readline, ""):
-            dst.write(line)
-            dst.flush()
-    t1 = Thread(target=pump, args=(p.stdout, sys.stdout), daemon=True)  # type: ignore[arg-type]
-    t2 = Thread(target=pump, args=(p.stderr, sys.stderr), daemon=True)  # type: ignore[arg-type]
-    t1.start()
-    t2.start()
-    p.wait()
-    t1.join()
-    t2.join()
-    return p.returncode
-
 def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
     log_command(cmd, **kw)
     if _RUNTIME_DRY_RUN:
@@ -291,12 +271,8 @@ def main():
         if args.print_plan:
             print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
         # Optional color strip only for local if requested
-        if args.no_color:
-            # run and strip locally
-            lf = make_line_filter("", "", True)
-            return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root))
-        else:
-            return run_checked(pytest_argv, cwd=str(local_root))
+        lf = make_line_filter("", "", True) if args.no_color else None
+        return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root))
 
     remote_name, r = select_remote(cfg, args.remote)
     host = r.get("host")
@@ -363,7 +339,7 @@ def main():
         setup = cfg.get("setup_command")
         if setup:
             setup_shell = f'cd {shlex.quote(remote_root)} && {setup.strip()}'
-            ret = run_checked(ssh_cmd(host, f"bash -lc {shlex.quote(setup_shell)}", tty=False))
+            ret = run_stream(ssh_cmd(host, f"bash -lc {shlex.quote(setup_shell)}", tty=False))
             if ret != 0:
                 return ret
 
@@ -372,7 +348,7 @@ def main():
         clean = cfg.get("clean_command")
         if clean:
             clean_shell = f'cd {shlex.quote(remote_root)} && {clean.strip()}'
-            ret = run_checked(ssh_cmd(host, f"bash -lc {shlex.quote(clean_shell)}", tty=False))
+            ret = run_stream(ssh_cmd(host, f"bash -lc {shlex.quote(clean_shell)}", tty=False))
             if ret != 0:
                 return ret
 
@@ -385,7 +361,7 @@ def main():
     rsync_cmd += extra
     src = str(local_root) + "/"
     dest = f"{host}:{remote_root}/"
-    ret = run_checked(rsync_cmd + [src, dest])
+    ret = run_stream(rsync_cmd + [src, dest])
     if ret != 0:
         return ret
 
