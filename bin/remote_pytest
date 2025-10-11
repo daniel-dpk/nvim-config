@@ -38,6 +38,7 @@ class Args:
     no_color: bool
     print_plan: bool
     print_config: bool
+    verbose: bool
     pytest_argv: List[str]
     dashdash: bool
 
@@ -53,6 +54,36 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 # ---------- globals for signal forwarding ----------
 _CHILDREN: list[subprocess.Popen] = []
+VERBOSE = False
+_RUNTIME_VERBOSE = False
+_RUNTIME_DRY_RUN = False
+
+def log_verbose(*parts) -> None:
+    if _RUNTIME_VERBOSE:
+        print('remote_pytest:', *parts, file=sys.stderr)
+
+def log_command(cmd: list[str], **kw) -> None:
+    if not _RUNTIME_VERBOSE:
+        return
+    display = ' '.join(shlex.quote(str(x)) for x in cmd)
+    extras: list[str] = []
+    cwd = kw.get('cwd')
+    if cwd:
+        extras.append(f'cwd={cwd}')
+    env = kw.get('env')
+    if env:
+        keys = ','.join(sorted(env.keys()))
+        extras.append(f'env={keys}')
+    if extras:
+        extras_joined = ', '.join(extras)
+        display = f'{display}  ({extras_joined})'
+    prefix = '[dry-run]' if _RUNTIME_DRY_RUN else '+'
+    log_verbose(prefix, display)
+
+def configure_runtime(verbose: bool, dry_run: bool) -> None:
+    global _RUNTIME_VERBOSE, _RUNTIME_DRY_RUN
+    _RUNTIME_VERBOSE = VERBOSE or verbose
+    _RUNTIME_DRY_RUN = dry_run
 
 def _forward_signal(signum, _):
     for p in _CHILDREN:
@@ -106,6 +137,9 @@ def print_plan(remote_name, host, remote_root, python, color, rsync_ex, args):
     print("PLAN " + json.dumps(plan, ensure_ascii=False))
 
 def run_checked(cmd: list[str], **kw) -> int:
+    log_command(cmd, **kw)
+    if _RUNTIME_DRY_RUN:
+        return 0
     # Launch and stream (no deadlocks): stdout/stderr -> parent streams
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, **kw)
     _CHILDREN.append(p)
@@ -123,6 +157,9 @@ def run_checked(cmd: list[str], **kw) -> int:
     return p.returncode
 
 def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
+    log_command(cmd, **kw)
+    if _RUNTIME_DRY_RUN:
+        return 0
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, **kw)
     _CHILDREN.append(p)
     def pump(src, dst):
@@ -139,6 +176,12 @@ def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
     t1.join()
     t2.join()
     return p.returncode
+
+def run_simple(cmd: list[str], **kw) -> int:
+    log_command(cmd, **kw)
+    if _RUNTIME_DRY_RUN:
+        return 0
+    return subprocess.run(cmd, **kw).returncode
 
 def ssh_cmd(host: str, remote_shell: str, tty: bool) -> list[str]:
     cmd = ["ssh"]
@@ -219,9 +262,11 @@ def main():
     ap.add_argument("--no-color", action="store_true")
     ap.add_argument("--print-plan", action="store_true")
     ap.add_argument("--print-config", action="store_true")
+    ap.add_argument("--verbose", action="store_true")
     ap.add_argument("--", dest="dashdash", action="store_true")  # ignored (just for help text)
     ap.add_argument("pytest_argv", nargs=argparse.REMAINDER)
     args = Args(**vars(ap.parse_args()))
+    configure_runtime(args.verbose, args.dry_run)
 
     # Drop the leading "--" separator if present
     pytest_argv = args.pytest_argv
@@ -238,14 +283,13 @@ def main():
     cwd_path = Path(args.cwd).resolve()
     cfg_path, config_root = find_config(cwd_path)
     local_root = config_root if cfg_path else cwd_path
-    if not cfg_path or args.local:
+    cfg = load_toml(cfg_path) if cfg_path else None
+    if not cfg or cfg.get("force_local") or args.local:
         # Local run
         if args.print_config:
             print(json.dumps({"mode": "local", "cwd": str(local_root)}, indent=2))
         if args.print_plan:
             print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
-        if args.dry_run:
-            return 0
         # Optional color strip only for local if requested
         if args.no_color:
             # run and strip locally
@@ -253,17 +297,6 @@ def main():
             return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root))
         else:
             return run_checked(pytest_argv, cwd=str(local_root))
-
-    cfg = load_toml(cfg_path)
-    if cfg.get("force_local"):
-        # behave as local
-        if args.print_config:
-            print(json.dumps({"mode": "local", "cwd": str(local_root)}, indent=2))
-        if args.print_plan:
-            print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
-        if args.dry_run:
-            return 0
-        return run_checked(pytest_argv, cwd=str(local_root))
 
     remote_name, r = select_remote(cfg, args.remote)
     host = r.get("host")
@@ -316,17 +349,15 @@ def main():
         print(json.dumps(eff, indent=2))
     if args.print_plan:
         print_plan(remote_name, host, remote_root, python_override or "", color_policy, excludes, full_argv)
-    if args.dry_run:
-        return 0
 
     # 1) ensure remote_root exists; optionally run setup_command once
     #    (expand ~ in remote shell)
     check_exists = f'test -d {shlex.quote(remote_root)}'
-    ret = subprocess.run(ssh_cmd(host, check_exists, tty=False)).returncode
+    ret = run_simple(ssh_cmd(host, check_exists, tty=False))
     if ret != 0:
         # mkdir -p and optional setup_command
         mkdir = f'mkdir -p {shlex.quote(remote_root)}'
-        ret = subprocess.run(ssh_cmd(host, mkdir, tty=False)).returncode
+        ret = run_simple(ssh_cmd(host, mkdir, tty=False))
         if ret != 0:
             return ret
         setup = cfg.get("setup_command")

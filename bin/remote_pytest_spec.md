@@ -19,7 +19,7 @@ Executable name: `remote_pytest` (Python recommended)
 ```
 remote_pytest [--cwd <LOCAL_ROOT>] [--remote <NAME>] [--local]
               [--clean] [--dry-run] [--no-color]
-              [--print-plan] [--print-config]
+              [--print-plan] [--print-config] [--verbose]
               -- <PYTEST-ARGV...>
 ```
 
@@ -50,6 +50,9 @@ remote_pytest [--cwd <LOCAL_ROOT>] [--remote <NAME>] [--local]
 
 * `--print-config`
   Print the merged, effective config (after defaults + selected remote) for debugging.
+
+* `--verbose`
+  Log every command before execution; with `--dry-run` it only logs.
 
 * `--`
   Required separator; everything after is passed verbatim as
