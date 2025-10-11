@@ -1,0 +1,344 @@
+#!/usr/bin/env python3
+"""
+remote_pytest: run pytest remotely (stateful mirror via rsync) or locally.
+
+Spec highlights:
+- Looks for `.remote-tests.toml` upward from --cwd (or $PWD).
+- If found (and not force_local), rsyncs to named remote, runs optional setup/clean/pre,
+  executes the pytest argv provided after `--`, rewrites absolute paths if configured,
+  preserves colors (or strips with --no-color), and propagates exit codes/signals.
+- If not found (or --local), runs locally.
+
+Requires: Python 3.11+ (for tomllib) or `pip install tomli` fallback.
+"""
+from __future__ import annotations
+import argparse
+import os
+import sys
+import subprocess
+import shlex
+import json
+import signal
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from threading import Thread
+from typing import List
+
+
+# ---------- Script argument types ----------
+
+@dataclass
+class Args:
+    cwd: str
+    remote: str
+    local: bool
+    clean: bool
+    dry_run: bool
+    no_color: bool
+    print_plan: bool
+    print_config: bool
+    pytest_argv: List[str]
+
+
+# ---------- TOML parsing ----------
+try:
+    import tomllib  # py311+ # pyright: ignore[reportMissingImports]
+except ModuleNotFoundError:  # pragma: no cover
+    import tomli as tomllib  # type: ignore
+
+# ---------- ANSI handling ----------
+ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+# ---------- globals for signal forwarding ----------
+_CHILDREN: list[subprocess.Popen] = []
+
+def _forward_signal(signum, _):
+    for p in _CHILDREN:
+        try:
+            if p and p.poll() is None:
+                p.send_signal(signum)
+        except Exception:
+            pass
+
+signal.signal(signal.SIGINT, _forward_signal)
+signal.signal(signal.SIGTERM, _forward_signal)
+
+# ---------- utils ----------
+def find_config(start: Path) -> tuple[Path | None, Path]:
+    start = start.resolve()
+    for base in [start, *start.parents]:
+        cfg = base / ".remote-tests.toml"
+        if cfg.exists():
+            return cfg, base
+    return None, start
+
+def load_toml(p: Path) -> dict:
+    with p.open("rb") as f:
+        return tomllib.load(f)
+
+def select_remote(cfg: dict, name: str | None) -> tuple[str, dict]:
+    remotes = cfg.get("remotes") or {}
+    if not remotes:
+        raise SystemExit("Config has no [remotes.*] entries")
+    if name:
+        if name not in remotes:
+            raise SystemExit(f"Unknown remote '{name}'")
+        return name, dict(remotes[name])
+    default = cfg.get("default")
+    if default and default in remotes:
+        return default, dict(remotes[default])
+    # fallback to first remote
+    key = next(iter(remotes.keys()))
+    return key, dict(remotes[key])
+
+def print_plan(remote_name, host, remote_root, python, color, rsync_ex, args):
+    plan = {
+        "remote": remote_name,
+        "host": host,
+        "root": remote_root,
+        "python": python,
+        "color": color,
+        "rsync_excludes": len(rsync_ex or []),
+        "args": " ".join(args),
+    }
+    print("PLAN " + json.dumps(plan, ensure_ascii=False))
+
+def run_checked(cmd: list[str], **kw) -> int:
+    # Launch and stream (no deadlocks): stdout/stderr -> parent streams
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, **kw)
+    _CHILDREN.append(p)
+    def pump(src, dst):
+        for line in iter(src.readline, ""):
+            dst.write(line)
+            dst.flush()
+    t1 = Thread(target=pump, args=(p.stdout, sys.stdout), daemon=True)  # type: ignore[arg-type]
+    t2 = Thread(target=pump, args=(p.stderr, sys.stderr), daemon=True)  # type: ignore[arg-type]
+    t1.start()
+    t2.start()
+    p.wait()
+    t1.join()
+    t2.join()
+    return p.returncode
+
+def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, **kw)
+    _CHILDREN.append(p)
+    def pump(src, dst):
+        for line in iter(src.readline, ""):
+            if line_filter:
+                line = line_filter(line)
+            dst.write(line)
+            dst.flush()
+    t1 = Thread(target=pump, args=(p.stdout, sys.stdout), daemon=True)  # type: ignore[arg-type]
+    t2 = Thread(target=pump, args=(p.stderr, sys.stderr), daemon=True)  # type: ignore[arg-type]
+    t1.start()
+    t2.start()
+    p.wait()
+    t1.join()
+    t2.join()
+    return p.returncode
+
+def ssh_cmd(host: str, remote_shell: str, tty: bool) -> list[str]:
+    cmd = ["ssh"]
+    if tty:
+        cmd.append("-tt")
+    cmd += [host, remote_shell]
+    return cmd
+
+def safe_export_env(env_map: dict[str, str] | None) -> str:
+    if not env_map:
+        return ""
+    parts = [f"export {k}={shlex.quote(str(v))}" for k, v in env_map.items()]
+    return " && ".join(parts)
+
+def append_pytest_color(env_map: dict[str, str] | None, policy: str, force_strip: bool) -> tuple[dict[str, str], bool]:
+    env_map = dict(env_map or {})
+    tty = True
+    if force_strip:
+        env_map["PYTEST_ADDOPTS"] = (env_map.get("PYTEST_ADDOPTS", "") + " --color=no").strip()
+        return env_map, False
+    if policy == "always":
+        env_map["PYTEST_ADDOPTS"] = (env_map.get("PYTEST_ADDOPTS", "") + " --color=yes").strip()
+        tty = True
+    elif policy == "never":
+        env_map["PYTEST_ADDOPTS"] = (env_map.get("PYTEST_ADDOPTS", "") + " --color=no").strip()
+        tty = False
+    else:
+        tty = True  # auto
+    return env_map, tty
+
+def make_line_filter(remote_prefix: str, local_prefix: str, strip_ansi: bool):
+    def filt(line: str) -> str:
+        if remote_prefix and local_prefix and remote_prefix in line:
+            line = line.replace(remote_prefix, local_prefix)
+        if strip_ansi:
+            line = ANSI_RE.sub("", line)
+        return line
+    return filt
+
+# ---------- main ----------
+def main():
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument("--cwd", default=os.getcwd())
+    ap.add_argument("--remote")
+    ap.add_argument("--local", action="store_true")
+    ap.add_argument("--clean", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--no-color", action="store_true")
+    ap.add_argument("--print-plan", action="store_true")
+    ap.add_argument("--print-config", action="store_true")
+    ap.add_argument("--", dest="dashdash", action="store_true")  # ignored (just for help text)
+    ap.add_argument("pytest_argv", nargs=argparse.REMAINDER)
+    args = Args(**vars(ap.parse_args()))
+
+    # Drop the leading "--" separator if present
+    pytest_argv = args.pytest_argv
+    if pytest_argv and pytest_argv[0] == "--":
+        pytest_argv = pytest_argv[1:]
+    if not pytest_argv:
+        print(
+            "remote_pytest: missing PYTEST-ARGV after `--` "
+            "(e.g., python -m pytest -q ...)",
+            file=sys.stderr,
+        )
+        return 2
+
+    local_root = Path(args.cwd).resolve()
+    cfg_path, _ = find_config(local_root)
+    if not cfg_path or args.local:
+        # Local run
+        if args.print_config:
+            print(json.dumps({"mode": "local", "cwd": str(local_root)}, indent=2))
+        if args.print_plan:
+            print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
+        if args.dry_run:
+            return 0
+        # Optional color strip only for local if requested
+        if args.no_color:
+            # run and strip locally
+            lf = make_line_filter("", "", True)
+            return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root))
+        else:
+            return run_checked(pytest_argv, cwd=str(local_root))
+
+    cfg = load_toml(cfg_path)
+    if cfg.get("force_local"):
+        # behave as local
+        if args.print_config:
+            print(json.dumps({"mode": "local", "cwd": str(local_root)}, indent=2))
+        if args.print_plan:
+            print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
+        if args.dry_run:
+            return 0
+        return run_checked(pytest_argv, cwd=str(local_root))
+
+    remote_name, r = select_remote(cfg, args.remote)
+    host = r.get("host")
+    remote_root = r.get("remote_root")
+    if not host or not remote_root:
+        raise SystemExit("Remote must define 'host' and 'remote_root'")
+
+    # rsync and pytest settings
+    rs = cfg.get("rsync", {})
+    excludes = rs.get("exclude", [])
+    includes = rs.get("include", [])
+    extra = rs.get("extra", [])
+
+    pycfg = cfg.get("pytest", {})
+    append_args = pycfg.get("args", [])
+    color_policy = (pycfg.get("color") or "auto").lower()
+    env_map = pycfg.get("env") or {}
+
+    # Extend pytest argv with config defaults (append at end)
+    full_argv = list(pytest_argv) + list(append_args)
+
+    # If config specifies python, optionally override the first token if it's a python interpreter
+    python_override = r.get("python")
+    if python_override and full_argv:
+        first = os.path.basename(full_argv[0])
+        if first.startswith("python"):
+            full_argv[0] = python_override
+
+    # Color handling (env + tty)
+    env_map, want_tty = append_pytest_color(env_map, color_policy, args.no_color)
+
+    # Optional path rewrite
+    rewrite_remote = (cfg.get("rewrite_prefix_remote") or pycfg.get("rewrite_prefix_remote") or r.get("rewrite_prefix_remote") or "")
+    rewrite_local = (cfg.get("rewrite_prefix_local") or pycfg.get("rewrite_prefix_local") or r.get("rewrite_prefix_local") or "")
+    line_filter = make_line_filter(str(rewrite_remote), str(rewrite_local), args.no_color)
+
+    # Render plan/config if requested
+    if args.print_config:
+        eff = {
+            "mode": "remote",
+            "remote": remote_name,
+            "host": host,
+            "remote_root": remote_root,
+            "python": python_override or "",
+            "pytest_args_appended": append_args,
+            "pytest_env": env_map,
+            "color_policy": color_policy,
+            "rsync": {"exclude": excludes, "include": includes, "extra": extra},
+        }
+        print(json.dumps(eff, indent=2))
+    if args.print_plan:
+        print_plan(remote_name, host, remote_root, python_override or "", color_policy, excludes, full_argv)
+    if args.dry_run:
+        return 0
+
+    # 1) ensure remote_root exists; optionally run setup_command once
+    #    (expand ~ in remote shell)
+    check_exists = f'test -d {shlex.quote(remote_root)}'
+    ret = subprocess.run(ssh_cmd(host, check_exists, tty=False)).returncode
+    if ret != 0:
+        # mkdir -p and optional setup_command
+        mkdir = f'mkdir -p {shlex.quote(remote_root)}'
+        ret = subprocess.run(ssh_cmd(host, mkdir, tty=False)).returncode
+        if ret != 0:
+            return ret
+        setup = cfg.get("setup_command")
+        if setup:
+            setup_shell = f'cd {shlex.quote(remote_root)} && {setup.strip()}'
+            ret = run_checked(ssh_cmd(host, f"bash -lc {shlex.quote(setup_shell)}", tty=False))
+            if ret != 0:
+                return ret
+
+    # 2) optional clean
+    if args.clean:
+        clean = cfg.get("clean_command")
+        if clean:
+            clean_shell = f'cd {shlex.quote(remote_root)} && {clean.strip()}'
+            ret = run_checked(ssh_cmd(host, f"bash -lc {shlex.quote(clean_shell)}", tty=False))
+            if ret != 0:
+                return ret
+
+    # 3) rsync local_root -> remote_root (stateful mirror)
+    rsync_cmd = ["rsync", "-az", "--delete"]
+    for e in excludes:
+        rsync_cmd += ["--exclude", e]
+    for inc in includes:
+        rsync_cmd += ["--include", inc]
+    rsync_cmd += extra
+    src = str(local_root) + "/"
+    dest = f"{host}:{remote_root}/"
+    ret = run_checked(rsync_cmd + [src, dest])
+    if ret != 0:
+        return ret
+
+    # 4) remote pre_command (venv activation, editable install, build_ext, etc.)
+    pre = r.get("pre_command")
+    exports = safe_export_env(env_map)
+    prologue = [f"cd {shlex.quote(remote_root)}"]
+    if exports:
+        prologue.append(exports)
+    if pre:
+        prologue.append(pre.strip())
+    # 5) run pytest with full argv (from neotest + appended args)
+    cmdline = " && ".join(prologue + [" ".join(shlex.quote(x) for x in full_argv)])
+    remote_shell = f"bash -lc {shlex.quote(cmdline)}"
+    ret = run_stream(ssh_cmd(host, remote_shell, tty=want_tty), line_filter=line_filter)
+    return ret
+
+if __name__ == "__main__":
+    sys.exit(main())
