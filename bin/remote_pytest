@@ -169,12 +169,42 @@ def append_pytest_color(env_map: dict[str, str] | None, policy: str, force_strip
     return env_map, tty
 
 def make_line_filter(remote_prefix: str, local_prefix: str, strip_ansi: bool):
+    boundary_before = " \t\n\r\"'([<{=:"
+    boundary_after = "/\\ \t\n\r\"').,:;])}>"
+
+    def replace_prefix(text: str) -> str:
+        if not remote_prefix or not local_prefix:
+            return text
+        result: list[str] = []
+        start = 0
+        rlen = len(remote_prefix)
+        while True:
+            idx = text.find(remote_prefix, start)
+            if idx == -1:
+                result.append(text[start:])
+                break
+            prev_char = text[idx - 1] if idx > 0 else ""
+            next_index = idx + rlen
+            next_char = text[next_index] if next_index < len(text) else ""
+            is_prefix = (idx == 0 or prev_char in boundary_before) and (
+                next_char == "" or next_char in boundary_after
+            )
+            if is_prefix:
+                result.append(text[start:idx])
+                result.append(local_prefix)
+                start = next_index
+            else:
+                result.append(text[start:idx + 1])
+                start = idx + 1
+        return "".join(result)
+
     def filt(line: str) -> str:
         if remote_prefix and local_prefix and remote_prefix in line:
-            line = line.replace(remote_prefix, local_prefix)
+            line = replace_prefix(line)
         if strip_ansi:
             line = ANSI_RE.sub("", line)
         return line
+
     return filt
 
 # ---------- main ----------
@@ -204,8 +234,9 @@ def main():
         )
         return 2
 
-    local_root = Path(args.cwd).resolve()
-    cfg_path, _ = find_config(local_root)
+    cwd_path = Path(args.cwd).resolve()
+    cfg_path, config_root = find_config(cwd_path)
+    local_root = config_root if cfg_path else cwd_path
     if not cfg_path or args.local:
         # Local run
         if args.print_config:
