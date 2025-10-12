@@ -38,7 +38,7 @@ return {
       set_pytest_options()
 
       -- Use the pytest wrapper
-      vim.g['test#python#pytest#executable'] = vim.fn.stdpath('config') .. '/bin/remote_pytest --dry-run -- pytest'
+      vim.g['test#python#pytest#executable'] = vim.fn.stdpath('config') .. '/bin/remote_pytest -- pytest'
     end,
     config = function()
       vim.keymap.set('n', '<LocalLeader>tt', prep_and_run('TestNearest'), { desc = '[t]est nearest' })
