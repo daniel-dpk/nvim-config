@@ -1,5 +1,7 @@
 local skip_slow_tests
 
+local remote_pytest = vim.fn.stdpath('config') .. '/bin/remote_pytest'
+
 local function set_pytest_options()
   if skip_slow_tests then
     vim.g['test#python#pytest#options'] = '-m "not slow"'
@@ -31,14 +33,14 @@ return {
       vim.g['test#neovim_sticky#kill_previous'] = true -- Try to abort previous run
       vim.g['test#neovim_sticky#reopen_window'] = true -- Reopen terminal split if not visible
       vim.g['test#neovim_sticky#use_existing'] = true  -- Use manually opened terminal, if exists
-      vim.g['test#neovim#term_position'] = "vert topleft 100"
+      vim.g['test#neovim#term_position'] = 'vert topleft 100'
 
       -- Skip slow tests by default
       skip_slow_tests = true
       set_pytest_options()
 
       -- Use the pytest wrapper
-      vim.g['test#python#pytest#executable'] = vim.fn.stdpath('config') .. '/bin/remote_pytest -- pytest'
+      vim.g['test#python#pytest#executable'] = remote_pytest .. ' -- pytest'
     end,
     config = function()
       vim.keymap.set('n', '<LocalLeader>tt', prep_and_run('TestNearest'), { desc = '[t]est nearest' })
@@ -46,7 +48,25 @@ return {
       vim.keymap.set('n', '<LocalLeader>ta', prep_and_run('TestSuite'),   { desc = 'test [a]ll (test suite)' })
       vim.keymap.set('n', '<LocalLeader>tl', prep_and_run('TestLast'),    { desc = 'test [l]ast' })
       vim.keymap.set('n', '<LocalLeader>tg', prep_and_run('TestVisit'),   { desc = '[g]o to last test' })
-      vim.keymap.set('n', '<LocalLeader>ts', toggle_slow_test,         { desc = 'toggle [s]low tests' })
+      vim.keymap.set('n', '<LocalLeader>ts', toggle_slow_test,            { desc = 'toggle [s]low tests' })
+
+      vim.keymap.set('n', '<LocalLeader>tS', function()
+        vim.api.nvim_command('wall')
+        vim.cmd('vert topleft split | vert resize 100 | terminal ' .. remote_pytest .. ' --sync-only --verbose && exit')
+        vim.cmd('startinsert')
+      end, { desc = '[S]ync with remote' })
+
+      vim.keymap.set('n', '<C-S-s>', function()
+        vim.api.nvim_command('wall')
+        vim.system({ remote_pytest, '--sync-only', '--verbose' }, { test = true }, vim.schedule_wrap(function(obj)
+          if obj.code == 0 then
+            vim.api.nvim_echo({ { 'Sync completed successfully', "Statement" } }, false, {})
+          else
+            vim.notify('Sync failed', vim.log.levels.ERROR)
+            print(obj.stderr)
+          end
+        end))
+      end, { desc = '[S]ync with remote' })
     end,
   },
 }

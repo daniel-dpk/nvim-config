@@ -33,6 +33,7 @@ class Args:
     cwd: str
     remote: str
     local: bool
+    sync_only: bool
     clean: bool
     dry_run: bool
     half_dry: bool
@@ -119,8 +120,13 @@ def select_remote(cfg: dict, name: str | None) -> tuple[str, dict]:
             raise SystemExit(f"Unknown remote '{name}'")
         return name, dict(remotes[name])
     default = cfg.get("default")
+    if default == "local":
+        return "local", {}
     if default and default in remotes:
-        return default, dict(remotes[default])
+        if default in remotes:
+            return default, dict(remotes[default])
+        else:
+            raise SystemExit(f"Default remote not configured: '{name}'")
     # fallback to first remote
     key = next(iter(remotes.keys()))
     return key, dict(remotes[key])
@@ -253,6 +259,7 @@ def main():
     ap.add_argument("--cwd", default=os.getcwd())
     ap.add_argument("--remote")
     ap.add_argument("--local", action="store_true")
+    ap.add_argument("--sync-only", action="store_true")
     ap.add_argument("--clean", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--half-dry", action="store_true")
@@ -269,7 +276,7 @@ def main():
     pytest_argv = args.pytest_argv
     if pytest_argv and pytest_argv[0] == "--":
         pytest_argv = pytest_argv[1:]
-    if not pytest_argv:
+    if not pytest_argv and not args.sync_only:
         print(
             "remote_pytest: missing PYTEST-ARGV after `--` "
             "(e.g., python -m pytest -q ...)",
@@ -281,8 +288,18 @@ def main():
     cfg_path, config_root = find_config(cwd_path)
     local_root = config_root if cfg_path else cwd_path
     cfg = load_toml(cfg_path) if cfg_path else None
-    if not cfg or cfg.get("force_local") or args.local:
+
+    if "local" in (cfg or {}).get("remotes", {}):
+        raise SystemExit(
+            "Remote `local` cannot have a configuration. If you need to "
+            "treat it as a remote, use `localhost` or some other name."
+        )
+
+    def run_local():
         # Local run
+        if args.sync_only:
+            log_verbose("Should only sync. Nothing to do for 'local'.")
+            return 0
         if args.print_config:
             print(json.dumps({"mode": "local", "cwd": str(local_root)}, indent=2))
         if args.print_plan:
@@ -292,7 +309,14 @@ def main():
         return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root),
                           dry_run=args.half_dry)
 
+    if not cfg or cfg.get("force_local") or args.local or args.remote == "local":
+        return run_local()
+
     remote_name, r = select_remote(cfg, args.remote)
+
+    if remote_name == "local":
+        return run_local()
+
     host = r.get("host")
     remote_dir = r.get("remote_dir")
     if not host or not remote_dir or remote_dir == "~":
@@ -349,11 +373,16 @@ def main():
             "host": host,
             "remote_dir": remote_dir,
             "python": python_override or "",
-            "pytest_args_appended": append_args,
-            "pytest_env": env_map,
-            "color_policy": color_policy,
+            "sync_only": args.sync_only,
+            "clean": args.clean,
             "rsync": {"exclude": excludes, "include": includes, "extra": extra},
         }
+        if not args.sync_only:
+            eff.update({
+                "pytest_args_appended": append_args,
+                "pytest_env": env_map,
+                "color_policy": color_policy,
+            })
         print(json.dumps(eff, indent=2))
     if args.print_plan:
         print_plan(remote_name, host, remote_dir, python_override or "", color_policy, excludes, full_argv)
@@ -404,6 +433,10 @@ def main():
     ret = run_stream(rsync_cmd + [src, dest])
     if ret != 0:
         return ret
+
+    if args.sync_only:
+        log_verbose("Stopping due to `--sync-only`")
+        return 0
 
     # 4) remote pre_command (venv activation, editable install, build_ext, etc.)
     pre = r.get("pre_command")

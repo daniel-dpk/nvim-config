@@ -35,6 +35,10 @@ remote_pytest [--cwd <LOCAL_ROOT>] [--remote <NAME>] [--local]
 * `--local`
   Force a **local** run (ignore remote config).
 
+* `--sync-only`
+  Do everything except running the `pre_command` and actual test. This is
+  usually the `setup_command` and `rsync`.
+
 * `--clean`
   Before running, execute `clean_command` (if configured) on the remote, then
   proceed normally.
