@@ -50,6 +50,7 @@ return {
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>o', group = '[O]penCode', mode = { 'n', 'v' } },
+        { '<LocalLeader>t', group = '[T]est' },
         { '<LocalLeader>m', group = '[M]ath evaluate', mode = { 'n', 'x' } },
         { 'gr',        group = 'LSP functions' },
         -- Document existing keymaps
