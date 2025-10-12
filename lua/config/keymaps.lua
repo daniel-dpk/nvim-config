@@ -64,6 +64,13 @@ vim.keymap.set('n', '<C-S-k>', function() nav(vim.cmd.cprev) end, { desc = 'Prev
 vim.keymap.set('n', '<A-S-j>', function() nav(vim.cmd.lnext) end, { desc = 'Next Location' })
 vim.keymap.set('n', '<A-S-k>', function() nav(vim.cmd.lprev) end, { desc = 'Previous Location' })
 
+-- Refresh the UI
+vim.keymap.set('n', '<C-S-l>', function()
+  vim.o.cmdheight = 1
+  vim.cmd.redraw()
+  vim.cmd('wincmd =')
+end, { desc = 'Redraw UI' })
+
 -- Copy to system clipboard
 vim.keymap.set('n', '<LocalLeader>c', function()
   vim.fn.setreg('+', vim.fn.substitute(vim.fn.getline('.'), '^\\s*', '', ''))
