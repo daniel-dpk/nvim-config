@@ -42,11 +42,17 @@ remote_pytest [--cwd <LOCAL_ROOT>] [--remote <NAME>] [--local]
 * `--dry-run`
   Resolve config/plan and print what would happen; **exit 0** without executing.
 
+* `--half-dry`
+  Similar to `--dry-run`, but communicate via `ssh` with the remote to query
+  existence of directories. This allows deciding whether to run `setup_command`.
+  Also, the `rsync` command is actually run, but with `--dry-run` argument to
+  simulate the sync.
+
 * `--no-color`
   Strip color codes from output (fallback for buggy terminals).
 
 * `--print-plan`
-  Print a one-line plan (host, remote_root, python, args) before executing.
+  Print a one-line plan (host, remote_dir, python, args) before executing.
 
 * `--print-config`
   Print the merged, effective config (after defaults + selected remote) for debugging.
@@ -86,17 +92,17 @@ exclude = [".git", ".venv", ".mypy_cache", ".pytest_cache", "__pycache__", "buil
 # Optional: extra = ["--delete-after", "--omit-dir-times"]  # extra raw rsync flags
 
 [pytest]
-args = ["-q", "-ra"]       # appended to argv supplied by neotest
-env  = { "PYTHONWARNINGS" = "default" }  # exported on remote
-color = "auto"             # "auto" | "always" | "never"
+args = ["-ra"]             # appended to argv supplied the caller
+env  = { "PYTHONWARNINGS" = "default", "PYTHONUNBUFFERED" = "1" }  # exported on remote
+color = "auto"             # "always" | "never" | "auto"
 
-# Optional global path rewrite (rarely needed if we cd into remote_root)
+# Optional global path rewrite (rarely needed if we cd into remote_dir)
 rewrite_prefix_remote = ""   # e.g., "/home/user/work/myproj"
 rewrite_prefix_local  = ""   # e.g., "/Users/dan/src/myproj"
 
 # Optional commands
 setup_command = """\
-# run only once when remote_root is missing
+# run only once when remote_dir is missing
 git clone --depth=1 git@github.com:org/repo.git .
 """
 
@@ -108,7 +114,10 @@ rm -rf .venv build dist **/*.so **/*.pyd
 # Named remotes
 [remotes.linux]
 host = "mycluster"                 # SSH Host alias from ~/.ssh/config
-remote_root = "~/work/myproj"      # directory to mirror into
+# WARNING: Files may be deleted inside the remote_dir.
+#          DO NOT use an existing directory with important data.
+#          Run with --half-dry to check what rsync would change.
+remote_dir = "~/mirror/myproj"     # directory to mirror into
 python = "python"                  # interpreter (absolute path or name in venv)
 pre_command = """\
 # idempotent setup + activation
@@ -116,9 +125,13 @@ if [ ! -d .venv ]; then python -m venv .venv && . .venv/bin/activate && pip -q i
 python setup.py build_ext --inplace
 """
 
+setup_command = """\
+# run before pytest.setup_command when remote_dir is missing
+"""
+
 [remotes.altdistro]
 host = "buildbox"
-remote_root = "~/src/myproj"
+remote_dir = "~/src/myproj"
 python = "~/.pyenv/versions/3.12.6/bin/python"
 pre_command = "source ~/.bashrc && pyenv activate 3.12.6 && pip -q install -e . && python setup.py build_ext --inplace"
 ```
@@ -127,12 +140,12 @@ pre_command = "source ~/.bashrc && pyenv activate 3.12.6 && pip -q install -e . 
 
 * If **no config file** is found at/above `--cwd`: run **locally**.
 * If `force_local = true`: run **locally**.
-* `setup_command` runs **exactly once per remote**, when `remote_root` does not exist.
+* `setup_command` runs **exactly once per remote**, when `remote_dir` does not exist.
 * `clean_command` runs **only** when `--clean` is passed.
 * `pre_command` runs **before every test execution** on the remote (typical
   place to activate venv, ensure editable install is in place, build Cython
   `--inplace`, etc.).
-* The runner **must not** assume identical `$HOME` paths—use `remote_root` and
+* The runner **must not** assume identical `$HOME` paths—use `remote_dir` and
   `--cwd` to map paths.
 
 ---
@@ -160,12 +173,11 @@ pre_command = "source ~/.bashrc && pyenv activate 3.12.6 && pip -q install -e . 
    * `PYTEST_ARGV` = argv after `--` (from neotest) **plus** `pytest.args`
      from config (append at end)
 
-4. **Dry-run / print-plan / print-config** (if requested):
+4. **print-plan / print-config** (if requested):
 
    * `--print-config`: dump effective config (after selecting remote).
    * `--print-plan`: log a single line, e.g.:
      `PLAN remote=linux host=mycluster root=~/work/myproj python=python args='-q -ra'`
-   * `--dry-run`: exit 0 now.
 
 5. **Initial setup**:
 

@@ -18,7 +18,7 @@ local function toggle_slow_test()
   end
 end
 
-local function wall_then(cmd)
+local function prep_and_run(cmd)
   return ('<cmd>wall|%s<CR>'):format(cmd)
 end
 
@@ -32,16 +32,20 @@ return {
       vim.g['test#neovim_sticky#reopen_window'] = true -- Reopen terminal split if not visible
       vim.g['test#neovim_sticky#use_existing'] = true  -- Use manually opened terminal, if exists
       vim.g['test#neovim#term_position'] = "vert topleft 100"
+
       -- Skip slow tests by default
       skip_slow_tests = true
       set_pytest_options()
+
+      -- Use the pytest wrapper
+      vim.g['test#python#pytest#executable'] = vim.fn.stdpath('config') .. '/bin/remote_pytest --dry-run -- pytest'
     end,
     config = function()
-      vim.keymap.set('n', '<LocalLeader>tt', wall_then('TestNearest'), { desc = '[t]est nearest' })
-      vim.keymap.set('n', '<LocalLeader>tf', wall_then('TestFile'),    { desc = 'test [f]ile' })
-      vim.keymap.set('n', '<LocalLeader>ta', wall_then('TestSuite'),   { desc = 'test [a]ll (test suite)' })
-      vim.keymap.set('n', '<LocalLeader>tl', wall_then('TestLast'),    { desc = 'test [l]ast' })
-      vim.keymap.set('n', '<LocalLeader>tg', wall_then('TestVisit'),   { desc = '[g]o to last test' })
+      vim.keymap.set('n', '<LocalLeader>tt', prep_and_run('TestNearest'), { desc = '[t]est nearest' })
+      vim.keymap.set('n', '<LocalLeader>tf', prep_and_run('TestFile'),    { desc = 'test [f]ile' })
+      vim.keymap.set('n', '<LocalLeader>ta', prep_and_run('TestSuite'),   { desc = 'test [a]ll (test suite)' })
+      vim.keymap.set('n', '<LocalLeader>tl', prep_and_run('TestLast'),    { desc = 'test [l]ast' })
+      vim.keymap.set('n', '<LocalLeader>tg', prep_and_run('TestVisit'),   { desc = '[g]o to last test' })
       vim.keymap.set('n', '<LocalLeader>ts', toggle_slow_test,         { desc = 'toggle [s]low tests' })
     end,
   },

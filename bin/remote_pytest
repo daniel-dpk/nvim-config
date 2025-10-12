@@ -35,6 +35,7 @@ class Args:
     local: bool
     clean: bool
     dry_run: bool
+    half_dry: bool
     no_color: bool
     print_plan: bool
     print_config: bool
@@ -62,7 +63,7 @@ def log_verbose(*parts) -> None:
     if _RUNTIME_VERBOSE:
         print('remote_pytest:', *parts, file=sys.stderr)
 
-def log_command(cmd: list[str], **kw) -> None:
+def log_command(cmd: list[str], dry_run=False, **kw) -> None:
     if not _RUNTIME_VERBOSE:
         return
     display = ' '.join(shlex.quote(str(x)) for x in cmd)
@@ -77,7 +78,7 @@ def log_command(cmd: list[str], **kw) -> None:
     if extras:
         extras_joined = ', '.join(extras)
         display = f'{display}  ({extras_joined})'
-    prefix = '[dry-run]' if _RUNTIME_DRY_RUN else '+'
+    prefix = '[dry-run]' if _RUNTIME_DRY_RUN or dry_run else '+'
     log_verbose(prefix, display)
 
 def configure_runtime(verbose: bool, dry_run: bool) -> None:
@@ -124,11 +125,11 @@ def select_remote(cfg: dict, name: str | None) -> tuple[str, dict]:
     key = next(iter(remotes.keys()))
     return key, dict(remotes[key])
 
-def print_plan(remote_name, host, remote_root, python, color, rsync_ex, args):
+def print_plan(remote_name, host, remote_dir, python, color, rsync_ex, args):
     plan = {
         "remote": remote_name,
         "host": host,
-        "root": remote_root,
+        "root": remote_dir,
         "python": python,
         "color": color,
         "rsync_excludes": len(rsync_ex or []),
@@ -136,9 +137,9 @@ def print_plan(remote_name, host, remote_root, python, color, rsync_ex, args):
     }
     print("PLAN " + json.dumps(plan, ensure_ascii=False))
 
-def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
-    log_command(cmd, **kw)
-    if _RUNTIME_DRY_RUN:
+def run_stream(cmd: list[str], line_filter=None, dry_run=False, **kw) -> int:
+    log_command(cmd, dry_run=dry_run, **kw)
+    if _RUNTIME_DRY_RUN or dry_run:
         return 0
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1, **kw)
     _CHILDREN.append(p)
@@ -163,11 +164,20 @@ def run_stream(cmd: list[str], line_filter=None, **kw) -> int:
         except ValueError:
             pass
 
-def run_simple(cmd: list[str], **kw) -> int:
-    log_command(cmd, **kw)
-    if _RUNTIME_DRY_RUN:
+def run_simple(cmd: list[str], dry_run=False, **kw) -> int:
+    log_command(cmd, dry_run=dry_run, **kw)
+    if _RUNTIME_DRY_RUN or dry_run:
         return 0
     return subprocess.run(cmd, **kw).returncode
+
+def run_remote(cmd: str|None, *, host: str, remote_dir: str, dry_run=False) -> int:
+    if cmd:
+        shell_cmd = f"cd {shlex.quote(remote_dir)} && {cmd.strip()}"
+        return run_stream(
+            ssh_cmd(host, f"bash -lc {shlex.quote(shell_cmd)}", tty=False),
+            dry_run=dry_run,
+        )
+    return 0
 
 def ssh_cmd(host: str, remote_shell: str, tty: bool) -> list[str]:
     cmd = ["ssh"]
@@ -184,13 +194,13 @@ def safe_export_env(env_map: dict[str, str] | None) -> str:
 
 def append_pytest_color(env_map: dict[str, str] | None, policy: str, force_strip: bool) -> tuple[dict[str, str], bool]:
     env_map = dict(env_map or {})
-    tty = True
+    tty = False
     if force_strip:
         env_map["PYTEST_ADDOPTS"] = (env_map.get("PYTEST_ADDOPTS", "") + " --color=no").strip()
         return env_map, False
     if policy == "always":
         env_map["PYTEST_ADDOPTS"] = (env_map.get("PYTEST_ADDOPTS", "") + " --color=yes").strip()
-        tty = True
+        tty = False
     elif policy == "never":
         env_map["PYTEST_ADDOPTS"] = (env_map.get("PYTEST_ADDOPTS", "") + " --color=no").strip()
         tty = False
@@ -245,6 +255,7 @@ def main():
     ap.add_argument("--local", action="store_true")
     ap.add_argument("--clean", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--half-dry", action="store_true")
     ap.add_argument("--no-color", action="store_true")
     ap.add_argument("--print-plan", action="store_true")
     ap.add_argument("--print-config", action="store_true")
@@ -278,13 +289,16 @@ def main():
             print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
         # Optional color strip only for local if requested
         lf = make_line_filter("", "", True) if args.no_color else None
-        return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root))
+        return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root),
+                          dry_run=args.half_dry)
 
     remote_name, r = select_remote(cfg, args.remote)
     host = r.get("host")
-    remote_root = r.get("remote_root")
-    if not host or not remote_root:
-        raise SystemExit("Remote must define 'host' and 'remote_root'")
+    remote_dir = r.get("remote_dir")
+    if not host or not remote_dir or remote_dir == "~":
+        raise SystemExit("Remote must define 'host' and nontrivial 'remote_dir'")
+    if remote_dir.startswith("~"):
+        remote_dir = remote_dir[1:].lstrip("/")
 
     # rsync and pytest settings
     rs = cfg.get("rsync", {})
@@ -294,7 +308,7 @@ def main():
 
     pycfg = cfg.get("pytest", {})
     append_args = pycfg.get("args", [])
-    color_policy = (pycfg.get("color") or "auto").lower()
+    color_policy = (pycfg.get("color") or "always").lower()
     env_map = pycfg.get("env") or {}
 
     # Extend pytest argv with config defaults (append at end)
@@ -333,7 +347,7 @@ def main():
             "mode": "remote",
             "remote": remote_name,
             "host": host,
-            "remote_root": remote_root,
+            "remote_dir": remote_dir,
             "python": python_override or "",
             "pytest_args_appended": append_args,
             "pytest_env": env_map,
@@ -342,22 +356,23 @@ def main():
         }
         print(json.dumps(eff, indent=2))
     if args.print_plan:
-        print_plan(remote_name, host, remote_root, python_override or "", color_policy, excludes, full_argv)
+        print_plan(remote_name, host, remote_dir, python_override or "", color_policy, excludes, full_argv)
 
-    # 1) ensure remote_root exists; optionally run setup_command once
-    #    (expand ~ in remote shell)
-    check_exists = f'test -d {shlex.quote(remote_root)}'
+    # 1) ensure remote_dir exists and is non-empty; optionally run setup_command once
+    check_exists = (
+        f"test -d {shlex.quote(remote_dir)} && "
+        f"find {shlex.quote(remote_dir)} -mindepth 1 -print -quit | grep -q ."
+    )
     ret = run_simple(ssh_cmd(host, check_exists, tty=False))
     if ret != 0:
         # mkdir -p and optional setup_command
-        mkdir = f'mkdir -p {shlex.quote(remote_root)}'
-        ret = run_simple(ssh_cmd(host, mkdir, tty=False))
+        mkdir = f'mkdir -p {shlex.quote(remote_dir)}'
+        ret = run_simple(ssh_cmd(host, mkdir, tty=False), dry_run=args.half_dry)
         if ret != 0:
             return ret
-        setup = cfg.get("setup_command")
-        if setup:
-            setup_shell = f'cd {shlex.quote(remote_root)} && {setup.strip()}'
-            ret = run_stream(ssh_cmd(host, f"bash -lc {shlex.quote(setup_shell)}", tty=False))
+        for source in (r, pycfg, cfg):
+            ret = run_remote(source.get("setup_command"), host=host,
+                             remote_dir=remote_dir, dry_run=args.half_dry)
             if ret != 0:
                 return ret
 
@@ -365,20 +380,27 @@ def main():
     if args.clean:
         clean = cfg.get("clean_command")
         if clean:
-            clean_shell = f'cd {shlex.quote(remote_root)} && {clean.strip()}'
-            ret = run_stream(ssh_cmd(host, f"bash -lc {shlex.quote(clean_shell)}", tty=False))
+            clean_shell = f'cd {shlex.quote(remote_dir)} && {clean.strip()}'
+            ret = run_stream(
+                ssh_cmd(host, f"bash -lc {shlex.quote(clean_shell)}", tty=False),
+                dry_run=args.half_dry,
+            )
             if ret != 0:
                 return ret
 
-    # 3) rsync local_root -> remote_root (stateful mirror)
-    rsync_cmd = ["rsync", "-az", "--delete"]
+    # 3) rsync local_root -> remote_dir (stateful mirror)
+    rsync_cmd = ["rsync", "-az"]
+    if args.half_dry:
+        rsync_cmd += ["--dry-run", "-vh"]
+    elif args.verbose:
+        rsync_cmd += ["-vh"]
     for e in excludes:
         rsync_cmd += ["--exclude", e]
     for inc in includes:
         rsync_cmd += ["--include", inc]
     rsync_cmd += extra
     src = str(local_root) + "/"
-    dest = f"{host}:{remote_root}/"
+    dest = f"{host}:{remote_dir}/"
     ret = run_stream(rsync_cmd + [src, dest])
     if ret != 0:
         return ret
@@ -386,15 +408,18 @@ def main():
     # 4) remote pre_command (venv activation, editable install, build_ext, etc.)
     pre = r.get("pre_command")
     exports = safe_export_env(env_map)
-    prologue = [f"cd {shlex.quote(remote_root)}"]
+    prologue = [f"cd {shlex.quote(remote_dir)}"]
     if exports:
         prologue.append(exports)
     if pre:
         prologue.append(pre.strip())
-    # 5) run pytest with full argv (from neotest + appended args)
+    # 5) run pytest with full argv (from cmdline + args from toml)
     cmdline = " && ".join(prologue + [" ".join(shlex.quote(x) for x in full_argv)])
     remote_shell = f"bash -lc {shlex.quote(cmdline)}"
-    ret = run_stream(ssh_cmd(host, remote_shell, tty=want_tty), line_filter=line_filter)
+    ret = run_stream(
+        ssh_cmd(host, remote_shell, tty=want_tty), line_filter=line_filter,
+        dry_run=args.half_dry,
+    )
     return ret
 
 if __name__ == "__main__":
