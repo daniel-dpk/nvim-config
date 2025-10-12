@@ -2,6 +2,31 @@ local skip_slow_tests
 
 local remote_name = nil
 
+local function find_remote_tests_config()
+  ---@diagnostic disable-next-line: undefined-field
+  local cwd = vim.loop.cwd()
+  if not cwd then return nil end
+  local matches = vim.fs.find('.remote-tests.toml', { path = cwd, upward = true })
+  return matches[1]
+end
+
+local function remote_keys_simple(path)
+  local keys = {}
+  for _, line in ipairs(vim.fn.readfile(path)) do
+    local key = line:match("^%[remotes%.([^%]]+)%]")
+    if key then table.insert(keys, key) end
+  end
+  return keys
+end
+
+local function extract_remote_names(config_path)
+  if not config_path then return {} end
+
+  local remotes = remote_keys_simple(config_path)
+  table.sort(remotes)
+  return remotes
+end
+
 ---Build the remote pytest command as table
 ---@param args? table[str]
 ---@return table[str]
@@ -29,14 +54,33 @@ local function set_executable()
 end
 
 local function choose_remote()
-  vim.ui.input(
+  local config_path = find_remote_tests_config()
+  local remote_candidates = extract_remote_names(config_path)
+
+  local remotes = { 'local' }
+  local seen = { ['local'] = true }
+
+  for _, name in ipairs(remote_candidates) do
+    if name ~= '' and not seen[name] then
+      table.insert(remotes, name)
+      seen[name] = true
+    end
+  end
+
+  local items = { { label = 'use default', value = nil } }
+  for _, name in ipairs(remotes) do
+    table.insert(items, { label = name, value = name })
+  end
+
+  vim.ui.select(
+    items,
     {
-      prompt = 'Remote name (empty = default): ',
-      default = remote_name or '',
+      prompt = 'Select remote:',
+      format_item = function(item) return item.label end,
     },
-    function(val)
-      if val == nil then return end
-      remote_name = (val ~= '' and val) or nil
+    function(choice)
+      if not choice then return end
+      remote_name = choice.value
       set_executable()
       if remote_name then
         vim.api.nvim_echo({ { 'Remote set to: ' .. remote_name, 'Statement' } }, false, {})
