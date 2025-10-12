@@ -10,10 +10,21 @@ local function find_remote_tests_config()
   return matches[1]
 end
 
-local function remote_keys_simple(path)
+local function default_remote(path)
   local keys = {}
   for _, line in ipairs(vim.fn.readfile(path)) do
-    local key = line:match("^%[remotes%.([^%]]+)%]")
+    local name = line:match('^%s*default%s*=%s*"(.-)"')
+    if name then return name end
+    name = line:match('^%[remotes%.([^%]]+)%]')
+    if name then return name end
+  end
+  return 'local'
+end
+
+local function remote_keys(path)
+  local keys = {}
+  for _, line in ipairs(vim.fn.readfile(path)) do
+    local key = line:match('^%[remotes%.([^%]]+)%]')
     if key then table.insert(keys, key) end
   end
   return keys
@@ -22,7 +33,7 @@ end
 local function extract_remote_names(config_path)
   if not config_path then return {} end
 
-  local remotes = remote_keys_simple(config_path)
+  local remotes = remote_keys(config_path)
   table.sort(remotes)
   return remotes
 end
@@ -56,6 +67,7 @@ end
 local function choose_remote()
   local config_path = find_remote_tests_config()
   local remote_candidates = extract_remote_names(config_path)
+  local def_remote = default_remote(config_path)
 
   local remotes = { 'local' }
   local seen = { ['local'] = true }
@@ -67,7 +79,7 @@ local function choose_remote()
     end
   end
 
-  local items = { { label = 'use default', value = nil } }
+  local items = { { label = 'use default (' .. def_remote .. ')', value = nil } }
   for _, name in ipairs(remotes) do
     table.insert(items, { label = name, value = name })
   end
