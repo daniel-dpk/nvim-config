@@ -71,3 +71,10 @@ On Linux (examples for Ubuntu):
   In contrast to `pip`, `pipx` will install lightweight virtual environments
   for command line tools and make them available in `~/.local/bin`. This makes
   those tools independent of any local Python setup and globally available.
+* Install this config:
+  ```
+  cd ~/.config/
+  git clone git@github.com:daniel-dpk/nvim-config.git nvim
+  ```
+* Now, start Neovim (`nvim`) and let it download/install/build everything it
+  needs. Exit Neovim and start it again, done.
