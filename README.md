@@ -47,7 +47,7 @@ On Linux (examples for Ubuntu):
   [https://tree-sitter.github.io/tree-sitter/creating-parsers#installation]
   for how to install it. If you installed `npm` above, you can use this:
   ```
-  npm install tree-sitter-cli
+  npm install -g tree-sitter-cli
   ```
 * To use the AI coding agent [OpenCode](https://github.com/sst/opencode)
   with Neovim via the
