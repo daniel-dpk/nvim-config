@@ -11,7 +11,7 @@ local function find_remote_tests_config()
 end
 
 local function default_remote(path)
-  local keys = {}
+  if not path then return 'local' end
   for _, line in ipairs(vim.fn.readfile(path)) do
     local name = line:match('^%s*default%s*=%s*"(.-)"')
     if name then return name end
@@ -167,9 +167,9 @@ return {
           { test = true },
           vim.schedule_wrap(function(obj)
             if obj.code == 0 then
-              vim.api.nvim_echo({ { 'Sync completed successfully', 'Statement' } }, false, {})
+              vim.api.nvim_echo({ { 'Source pushed successfully', 'Statement' } }, false, {})
             else
-              vim.notify('Sync failed', vim.log.levels.ERROR)
+              vim.notify('Push to remote failed', vim.log.levels.ERROR)
               print(obj.stderr)
             end
           end)
