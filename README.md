@@ -59,6 +59,7 @@ On Linux (examples for Ubuntu):
   ```
   Update OpenCode via `npm update -g opencode-ai`
   (or `brew upgrade sst/tap/opencode`).
+* To install the Lua LSP, see [lua_ls](https://luals.github.io/#neovim-install)
 * Requirements for the Python LSP setup:
   ```
   npm install -g pyright
