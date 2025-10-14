@@ -44,6 +44,7 @@ return {
         },
         --documentation = { auto_show = true, auto_show_delay_ms = 1000 },
         documentation = { auto_show = false },
+        accept = { dot_repeat = false }, -- fixes errors if completions trigger wrapping
       },
 
       -- Default list of enabled providers defined so that you can extend it
