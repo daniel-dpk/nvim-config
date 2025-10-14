@@ -58,6 +58,11 @@ snippet aac "assert_allclose (numpy)"
 snippet future "from __future__ import stuff..."
 	from __future__ import annotations
 
+snippet roprop "Read-only Property"
+	@property
+	def ${1:my_prop}(self):
+		return self.${2:_$1}
+
 snippet rwprop "Read/Write Property"
 	@property
 	def ${1:my_prop}(self):
