@@ -78,6 +78,9 @@ end, { desc = '[C]opy line' })
 
 vim.keymap.set('x', '<LocalLeader>c', '"+y', { desc = '[C]opy selection' })
 
+-- Delete without yanking
+vim.keymap.set({ 'n', 'x' }, '<Leader>d', '"_d', { desc = '[D]elete (no yanking)' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
