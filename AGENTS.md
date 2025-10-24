@@ -1,8 +1,5 @@
 # Repository Guidelines
 
-## Important note for coding agents
-**Always** use relative paths for all tool calls.
-
 ## Purpose
 Modern Neovim config in Lua using lazy.nvim for IDE-like experience.
 
