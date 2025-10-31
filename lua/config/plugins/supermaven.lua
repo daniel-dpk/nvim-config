@@ -21,13 +21,13 @@ return {
     },
     keys = {
       {
-        '<Leader>ts',
+        '<C-a>',
         function()
           require('supermaven-nvim.api').toggle()
           local status = require('supermaven-nvim.api').is_running() and 'active' or 'inactive'
           vim.api.nvim_echo({ { 'Supermaven is now ' .. status, 'Statement' } }, false, {})
         end,
-        desc = '[T]oggle [S]upermaven'
+        desc = 'Toggle supermaven'
       },
     },
     config = function(_, opts)
