@@ -30,5 +30,11 @@ return {
         desc = '[T]oggle [S]upermaven'
       },
     },
+    config = function(_, opts)
+      -- remove default keymaps interfering with supermaven
+      vim.keymap.del({'i', 's'}, '<Tab>')
+      vim.keymap.del({'i', 's'}, '<S-Tab>')
+      require('supermaven-nvim').setup(opts)
+    end,
   },
 }

@@ -23,6 +23,8 @@ return {
       keymap = {
         preset = 'default',
         ['<C-S-k>'] = { function(cmp) cmp.show({ providers = { 'snippets' } }) end },
+        ['<S-Tab>'] = false,
+        ['<Tab>'] = false,
       },
 
       appearance = {
