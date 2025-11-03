@@ -21,7 +21,7 @@ return {
     },
     keys = {
       {
-        '<C-a>',
+        '<C-S-a>',
         function()
           require('supermaven-nvim.api').toggle()
           local status = require('supermaven-nvim.api').is_running() and 'active' or 'inactive'
