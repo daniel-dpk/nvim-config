@@ -81,7 +81,9 @@ local function choose_remote()
 
   local items = { { label = 'use default (' .. def_remote .. ')', value = nil } }
   for _, name in ipairs(remotes) do
-    table.insert(items, { label = name, value = name })
+    local label = name
+    if name == remote_name then label = label .. ' (current)' end
+    table.insert(items, { label = label, value = name })
   end
 
   vim.ui.select(
@@ -97,7 +99,9 @@ local function choose_remote()
       if remote_name then
         vim.api.nvim_echo({ { 'Remote set to: ' .. remote_name, 'Statement' } }, false, {})
       else
-        vim.api.nvim_echo({ { 'Using default remote in .remote-tests.toml', 'Statement' } }, false, {})
+        vim.api.nvim_echo(
+          { { 'Using default remote \'' .. def_remote .. '\' in .remote-tests.toml', 'Statement' } }, false, {}
+        )
       end
     end
   )
@@ -163,13 +167,21 @@ return {
 
       vim.keymap.set('n', '<C-S-s>', function()
         vim.api.nvim_command('wall')
+        if not remote_name or remote_name == '' or remote_name == 'local' then
+          choose_remote()
+        end
+        if not remote_name or remote_name == '' or remote_name == 'local' then
+          vim.notify('No remote selected', vim.log.levels.ERROR)
+          return
+        end
         vim.system(remote_pytest_table({ '--sync-only', '--verbose' }),
           { test = true },
           vim.schedule_wrap(function(obj)
+            local name = remote_name or 'local'
             if obj.code == 0 then
-              vim.api.nvim_echo({ { 'Source pushed successfully', 'Statement' } }, false, {})
+              vim.api.nvim_echo({ { 'Source pushed to \'' .. name .. '\'', 'Statement' } }, false, {})
             else
-              vim.notify('Push to remote failed', vim.log.levels.ERROR)
+              vim.notify('Push to remote \'' .. name .. '\' failed', vim.log.levels.ERROR)
               print(obj.stderr)
             end
           end)
