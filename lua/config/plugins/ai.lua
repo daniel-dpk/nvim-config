@@ -33,8 +33,8 @@ return {
       vim.keymap.set('n', '<leader>ot', function() oc.toggle(); vim.cmd('horizontal wincmd =') end, { desc = 'Toggle embedded' })
       vim.keymap.set('n', '<leader>on', function() oc.command('session_new') end, { desc = '[N]ew session' })
       vim.keymap.set('n', '<leader>oi', function() oc.command('session_interrupt') end, { desc = '[I]nterrupt session' })
-      vim.keymap.set('n', '<S-C-u>',    function() oc.command('messages_half_page_up') end, { desc = 'Messages half page [U]p' })
-      vim.keymap.set('n', '<S-C-d>',    function() oc.command('messages_half_page_down') end, { desc = 'Messages half page [D]own' })
+      vim.keymap.set('n', '<C-S-u>',    function() oc.command('messages_half_page_up') end, { desc = 'Messages half page [U]p' })
+      vim.keymap.set('n', '<C-S-d>',    function() oc.command('messages_half_page_down') end, { desc = 'Messages half page [D]own' })
     end,
   },
 }

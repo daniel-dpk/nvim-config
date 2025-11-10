@@ -110,6 +110,8 @@ bind-key -T root C-S-j send-keys Escape "[106;6u"
 bind-key -T root C-S-k send-keys Escape "[107;6u"
 bind-key -T root C-S-l send-keys Escape "[108;6u"
 bind-key -T root C-S-s send-keys Escape "[115;6u"
+bind-key -T root C-S-u send-keys Escape "[117;6u"
+bind-key -T root C-S-d send-keys Escape "[100;6u"
 ```
 
 
