@@ -6,14 +6,14 @@
 > serves as starting point and/or inspiration for your own configuration.
 
 > [!TIP]
-> An alternative starting point that is more general is
+> An better more general starting point for most people, from which this
+> configuration is heavily inspired, is
 > [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim)
 > or the modular variant
 > [kickstart-modular.nvim](https://github.com/dam9000/kickstart-modular.nvim).
 
 > [!NOTE]
-> This configuration is tested and used on Linux. Some effort is done to make
-> it work on macOS.
+> This configuration is tested and used on Linux and macOS in Ghostty.
 
 
 ## Installing dependencies
