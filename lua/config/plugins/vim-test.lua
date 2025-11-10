@@ -97,11 +97,15 @@ local function choose_remote()
       remote_name = choice.value
       set_executable()
       if remote_name then
-        vim.api.nvim_echo({ { 'Remote set to: ' .. remote_name, 'Statement' } }, false, {})
+        vim.schedule(function()
+          vim.api.nvim_echo({ { 'Remote set to: ' .. remote_name, 'Statement' } }, false, {})
+        end)
       else
-        vim.api.nvim_echo(
-          { { 'Using default remote \'' .. def_remote .. '\' in .remote-tests.toml', 'Statement' } }, false, {}
-        )
+        vim.schedule(function()
+          vim.api.nvim_echo(
+            { { 'Using default remote \'' .. def_remote .. '\' in .remote-tests.toml', 'Statement' } }, false, {}
+          )
+        end)
       end
     end
   )
@@ -171,7 +175,7 @@ return {
           choose_remote()
         end
         if not remote_name or remote_name == '' or remote_name == 'local' then
-          vim.notify('No remote selected', vim.log.levels.ERROR)
+          vim.schedule(function() vim.notify('No remote selected', vim.log.levels.ERROR) end)
           return
         end
         vim.system(remote_pytest_table({ '--sync-only', '--verbose' }),
