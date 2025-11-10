@@ -72,10 +72,68 @@ On Linux (examples for Ubuntu):
   In contrast to `pip`, `pipx` will install lightweight virtual environments
   for command line tools and make them available in `~/.local/bin`. This makes
   those tools independent of any local Python setup and globally available.
-* Install this config:
-  ```
-  cd ~/.config/
-  git clone git@github.com:daniel-dpk/nvim-config.git nvim
-  ```
-* Now, start Neovim (`nvim`) and let it download/install/build everything it
-  needs. Exit Neovim and start it again, done.
+
+
+## Install this config
+
+```
+cd ~/.config/
+git clone git@github.com:daniel-dpk/nvim-config.git nvim
+```
+
+Now, start Neovim (`nvim`) and let it download/install/build everything it
+needs. Exit Neovim and start it again, done.
+
+
+## Troubleshooting
+
+### Some things don't work inside tmux
+
+You may have to add the following to your `~/.tmux.conf`:
+```
+set -g default-terminal "tmux-256color"
+set-option -sg escape-time 10
+set-option -g xterm-keys on
+set -g extended-keys off
+
+# To make copy/paste work inside Neovim
+set-option -s set-clipboard on
+
+# To make Neovim notice external changes when inside tmux
+set-option -g focus-events on
+
+# With extended-keys turned off, we need to forward some of them by hand
+bind-key -T root C-, send-keys Escape "[44;5u"
+bind-key -T root C-S-a send-keys Escape "[97;6u"
+bind-key -T root C-S-h send-keys Escape "[104;6u"
+bind-key -T root C-S-j send-keys Escape "[106;6u"
+bind-key -T root C-S-k send-keys Escape "[107;6u"
+bind-key -T root C-S-l send-keys Escape "[108;6u"
+bind-key -T root C-S-s send-keys Escape "[115;6u"
+```
+
+
+### Issues in Ghostty
+
+In `~/Library/Application Support/com.mitchellh.ghostty/config` (macOS) or
+`~/.config/ghostty/config` (Linux), consider adding:
+
+```
+keybind = alt+left=unbind
+keybind = alt+right=unbind
+
+keybind = ctrl+shift+left=unbind
+keybind = ctrl+shift+right=unbind
+
+keybind = alt+shift+h=esc:H
+keybind = alt+shift+j=esc:J
+keybind = alt+shift+k=esc:K
+keybind = alt+shift+l=esc:L
+
+keybind = alt+shift+i=esc:I
+
+keybind = alt+k=esc:k
+keybind = alt+j=esc:j
+
+shell-integration-features = no-cursor,no-title
+```
