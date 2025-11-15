@@ -19,6 +19,7 @@ return {
           replace = 'cs', -- Replace/change surrounding
         },
       })
+      vim.keymap.del('n', 'sn')
       vim.keymap.del('x', 'ys')
       vim.keymap.set('x', 'S', [[:<C-u>lua MiniSurround.add('visual')<CR>]], { silent = true })
       vim.keymap.set('n', 'yss', 'ys_', { remap = true })
