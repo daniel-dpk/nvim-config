@@ -4,6 +4,7 @@ local f, c = ls.function_node, ls.choice_node
 local l = require('luasnip.extras').lambda
 local dl = require('luasnip.extras').dynamic_lambda
 local fmt = require('luasnip.extras.fmt').fmt
+local ps = ls.parser.parse_snippet
 
 local ls_utils = require('utils.luasnip_utils')
 local dyn_args = ls_utils.dyn_args
@@ -16,10 +17,10 @@ return {
     d(1, function()
       local kind = ls_utils.method_kind()
       local out = '.'
-      if kind == 'instance' then
-        out = 'self.'
-      elseif kind == 'classmethod' then
+      if kind == 'classmethod' then
         out = 'cls.'
+      else
+        out = 'self.'
       end
       return sn(nil, { t(out) })
     end, {})
@@ -125,5 +126,13 @@ return {
   ]], {
     dyn_sel(1, 'temp_code()'),
   })),
+
+  ps('todo', '# TODO: ${1:...}'),
+
+  ps('bp', 'import ipdb; ipdb.set_trace()'),
+  ps('aa', 'assert ${1:arr} == approx(${2:expected})'),
+  ps('aanp', 'assert ${1:arr} == approx(${2:array([${3:expected}])}${4:, abs=0})'),
+
+  ps('raise', 'raise ${1:Runtime}Error(f"${2:Message}")'),
 
 }

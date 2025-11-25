@@ -210,17 +210,9 @@ snippet pnp "Print with NumPy options"
 		print(f"${1:arr} =\n{repr(${2:$1})}")
 
 
-snippet raise "Raise an exception"
-	raise ${1:Runtime}Error(f"${2:Message}")
-
-
 snippet bases "Print all base classes of an object"
 	import inspect
 	print("Bases:\n  " + "\n  ".join(repr(c) for c in inspect.getmro(${1:obj}.__class__)))
-
-
-snippet bp "Set an IPython breakpoint"
-	import ipdb; ipdb.set_trace()
 
 
 snippet pytest "Pytest test file template"
@@ -239,14 +231,6 @@ snippet pytest "Pytest test file template"
 	class Test$2:
 		def test_$3(self):
 			assert array([1]) == approx(array([0])) # fail to show tests work
-
-
-snippet aa "assert arr == approx(y)"
-	assert ${1:arr} == approx(${2:expected})
-
-
-snippet aanp "assert arr == approx(array([1, 2, 3]))"
-	assert ${1:arr} == approx(${2:array([${3:expected}])}${4:, abs=0})
 
 
 snippet flag "Add a flag to the ArgumentParser"
@@ -406,10 +390,6 @@ snippet getstate "__getstate__() for __slots__ class"
 snippet new "__new__() method"
 	def __new__(cls, *args, **kwargs):
 		return super().__new__(cls, *args, **kwargs)
-
-
-snippet todo "TODO-entry"
-	# TODO: ${1:...}
 
 
 snippet param "@param the_name Description"
