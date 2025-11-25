@@ -5,3 +5,5 @@ nvim
 
 /lua/custom/
 spell/
+
+__pycache__/

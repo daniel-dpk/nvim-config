@@ -131,7 +131,8 @@ def select_remote(cfg: dict, name: str | None) -> tuple[str, dict]:
     key = next(iter(remotes.keys()))
     return key, dict(remotes[key])
 
-def print_plan(remote_name, host, remote_dir, python, color, rsync_ex, args):
+def print_plan(remote_name, host, remote_dir, python, color, rsync_ex, args, command_prefix):
+    prefix = " ".join(command_prefix) if command_prefix else ""
     plan = {
         "remote": remote_name,
         "host": host,
@@ -139,6 +140,7 @@ def print_plan(remote_name, host, remote_dir, python, color, rsync_ex, args):
         "python": python,
         "color": color,
         "rsync_excludes": len(rsync_ex or []),
+        "command_prefix": prefix,
         "args": " ".join(args),
     }
     print("PLAN " + json.dumps(plan, ensure_ascii=False))
@@ -303,7 +305,8 @@ def main():
         if args.print_config:
             print(json.dumps({"mode": "local", "cwd": str(local_root)}, indent=2))
         if args.print_plan:
-            print_plan("local", "localhost", str(local_root), "", "auto", [], pytest_argv)
+            print_plan("local", "localhost", str(local_root), "", "auto", [],
+                       pytest_argv, [])
         # Optional color strip only for local if requested
         lf = make_line_filter("", "", True) if args.no_color else None
         return run_stream(pytest_argv, line_filter=lf, cwd=str(local_root),
@@ -345,6 +348,15 @@ def main():
         if first.startswith("python"):
             full_argv[0] = python_override
 
+    # Optional command prefix (e.g., wrapper that sets up Rosetta env)
+    command_prefix_raw = r.get("command_prefix")
+    if isinstance(command_prefix_raw, list):
+        command_prefix = [str(x) for x in command_prefix_raw]
+    elif command_prefix_raw:
+        command_prefix = shlex.split(str(command_prefix_raw))
+    else:
+        command_prefix = []
+
     # Color handling (env + tty)
     env_map, want_tty = append_pytest_color(env_map, color_policy, args.no_color)
 
@@ -373,6 +385,7 @@ def main():
             "host": host,
             "remote_dir": remote_dir,
             "python": python_override or "",
+            "command_prefix": command_prefix,
             "sync_only": args.sync_only,
             "clean": args.clean,
             "rsync": {"exclude": excludes, "include": includes, "extra": extra},
@@ -385,7 +398,8 @@ def main():
             })
         print(json.dumps(eff, indent=2))
     if args.print_plan:
-        print_plan(remote_name, host, remote_dir, python_override or "", color_policy, excludes, full_argv)
+        print_plan(remote_name, host, remote_dir, python_override or "",
+                   color_policy, excludes, full_argv, command_prefix)
 
     # 1) ensure remote_dir exists and is non-empty; optionally run setup_command once
     check_exists = (
@@ -447,7 +461,8 @@ def main():
     if pre:
         prologue.append(pre.strip())
     # 5) run pytest with full argv (from cmdline + args from toml)
-    cmdline = " && ".join(prologue + [" ".join(shlex.quote(x) for x in full_argv)])
+    command = list(command_prefix) + list(full_argv)
+    cmdline = " && ".join(prologue + [" ".join(shlex.quote(x) for x in command)])
     remote_shell = f"bash -lc {shlex.quote(cmdline)}"
     ret = run_stream(
         ssh_cmd(host, remote_shell, tty=want_tty), line_filter=line_filter,

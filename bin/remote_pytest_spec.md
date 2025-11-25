@@ -123,6 +123,7 @@ host = "mycluster"                 # SSH Host alias from ~/.ssh/config
 #          Run with --half-dry to check what rsync would change.
 remote_dir = "~/mirror/myproj"     # directory to mirror into
 python = "python"                  # interpreter (absolute path or name in venv)
+command_prefix = "./run.sh"        # optional wrapper prefixed to pytest cmd
 pre_command = """\
 # idempotent setup + activation
 if [ ! -d .venv ]; then python -m venv .venv && . .venv/bin/activate && pip -q install -U pip setuptools wheel && pip -q install -e .; else . .venv/bin/activate; fi
@@ -166,12 +167,13 @@ pre_command = "source ~/.bashrc && pyenv activate 3.12.6 && pip -q install -e . 
 
 2. **Local/remote decision**:
 
-   * If `--local` or `force_local=true` ⟶ local run.
-   * Else select remote: `--remote <NAME>` or `default`.
+* If `--local` or `force_local=true` ⟶ local run.
+* Else select remote: `--remote <NAME>` or `default`.
 
 3. **Construct plan** (remote):
 
    * `HOST`, `REMOTE_ROOT`, `PYTHON`, `PRE_COMMAND`, `SETUP_COMMAND?`, `CLEAN_COMMAND?`
+   * `COMMAND_PREFIX` (optional wrapper before pytest invocation)
    * `PYTEST_ENV` (dict), `PYTEST_COLOR` policy
    * `RSYNC_EXCLUDES`, optional includes/extra flags
    * `PYTEST_ARGV` = argv after `--` (from neotest) **plus** `pytest.args`
