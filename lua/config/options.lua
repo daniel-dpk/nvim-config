@@ -65,3 +65,6 @@ vim.o.confirm = true
 vim.o.hidden = true
 
 vim.o.sessionoptions = 'buffers,curdir,folds,globals,tabpages,winpos,winsize'
+
+-- Allow per-directory settings in .nvim.lua / .nvim
+vim.opt.exrc = true
