@@ -1,0 +1,5 @@
+// LuaLS project config for this Neovim config.
+// Kept as .jsonc so it isn't ignored by this repo's .gitignore.
+{
+  "Lua.diagnostics.globals": ["vim"]
+}
