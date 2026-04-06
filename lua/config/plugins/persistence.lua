@@ -2,6 +2,7 @@ return {
   'folke/persistence.nvim',
   config = function()
     local p = require('persistence')
+
     vim.keymap.set('n', '<leader>sl', function() p.load() end, { desc = 'Load session for cwd' })
     vim.keymap.set('n', '<leader>ss', function() p.select() end, { desc = 'Select a session' })
     vim.keymap.set('n', '<leader>sa', function() p.start() end, { desc = 'Activate session tracking' })
@@ -35,7 +36,15 @@ return {
       p.select()
     end, { desc = 'Select a session interactively' })
 
-    -- Setup also enables auto-save on VimLeavePre
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'PersistenceLoadPost',
+      callback = function()
+        p.start()
+      end,
+    })
+
+    -- Keep session creation opt-in, but auto-save once a session is loaded.
     p.setup()
+    p.stop()
   end,
 }
