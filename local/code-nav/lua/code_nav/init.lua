@@ -30,12 +30,8 @@ local function get_root(bufnr, lang)
   return tree and tree:root() or nil
 end
 
-local function get_node_at_cursor()
-  local ok, ts_utils = pcall(require, 'nvim-treesitter.ts_utils')
-  if ok and ts_utils.get_node_at_cursor then
-    return ts_utils.get_node_at_cursor()
-  end
-  return nil
+local function get_node_at_cursor(bufnr, lang)
+  return vim.treesitter.get_node({ bufnr = bufnr, lang = lang })
 end
 
 local function collect_items_in_scope(scope, wanted)
@@ -120,7 +116,7 @@ function M.jump(direction, level)
     scope = root
     items = collect_items_in_scope(scope, wanted)
   else
-    local node = get_node_at_cursor()
+    local node = get_node_at_cursor(bufnr, lang)
     scope, items = resolve_scope(node, root, wanted)
   end
 

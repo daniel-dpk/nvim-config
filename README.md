@@ -15,6 +15,10 @@
 > [!NOTE]
 > This configuration is tested and used on Linux and macOS in Ghostty.
 
+> [!NOTE]
+> This config targets Neovim `0.12+`. The rewritten `nvim-treesitter` setup
+> may not be compatible with Neovim `0.11`.
+
 
 ## Installing dependencies
 
@@ -47,9 +51,15 @@ On Linux (examples for Ubuntu):
 * Some language parsers for `tree-sitter` need to be built from language
   definitions via the `tree-sitter-cli`. See
   [https://tree-sitter.github.io/tree-sitter/creating-parsers#installation]
-  for how to install it. If you installed `npm` above, you can use this:
+  for how to install it. Install it via your package manager, for example:
   ```
-  npm install -g tree-sitter-cli
+  brew install tree-sitter-cli
+  ```
+  The current `nvim-treesitter` setup expects a recent CLI and upstream no
+  longer recommends installing it via `npm`. If you previously installed it
+  via `npm`, uninstall it via:
+  ```
+  npm uninstall -g tree-sitter-cli
   ```
 * To use the AI coding agent [OpenCode](https://github.com/sst/opencode)
   with Neovim via the
@@ -85,6 +95,28 @@ git clone git@github.com:daniel-dpk/nvim-config.git nvim
 
 Now, start Neovim (`nvim`) and let it download/install/build everything it
 needs. Exit Neovim and start it again, done.
+
+
+## Updating an existing setup
+
+If you already use this config on another machine and update it to a newer
+revision, the safest order is:
+
+1. Upgrade Neovim to `0.12+` first.
+2. Ensure `tree-sitter-cli` comes from your package manager, for example:
+   `brew install tree-sitter-cli`
+   It should be at least version `0.26.1`.
+3. If you previously installed `tree-sitter-cli` via `npm`, remove that old
+   global install so it does not shadow the package-manager version:
+   `npm uninstall -g tree-sitter-cli`
+4. Start Neovim and run `:Lazy sync`
+5. Restart Neovim once the plugin update finishes so parser installation can
+   complete cleanly.
+6. Run `:checkhealth nvim-treesitter` if Treesitter-related features look odd.
+
+If a machine must stay on Neovim `0.11`, it should stay on an older revision
+of this repo or keep `nvim-treesitter` on its legacy `master` branch instead of
+using the current setup.
 
 
 ## Troubleshooting
