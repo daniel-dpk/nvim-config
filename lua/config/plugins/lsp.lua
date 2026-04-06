@@ -83,6 +83,22 @@ return {
         },
       })
 
+      do
+        local capabilities = vim.lsp.protocol.make_client_capabilities()
+        capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+        vim.lsp.config('jsonls', {
+          capabilities = capabilities,
+          on_attach = on_attach,
+          settings = {
+            json = {
+              validate = { enable = true },
+              schemaDownload = { enable = true },
+            },
+          },
+        })
+      end
+
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
         callback = function(args)
@@ -99,7 +115,7 @@ return {
       })
 
       -- [[ Enable servers ]]
-      vim.lsp.enable({ 'pyright', 'ruff' })
+      vim.lsp.enable({ 'pyright', 'ruff', 'jsonls' })
       vim.lsp.enable('lua_ls')
     end,
   }

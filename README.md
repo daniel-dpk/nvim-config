@@ -42,6 +42,8 @@ On Linux (examples for Ubuntu):
   * install [nvm](https://github.com/nvm-sh/nvm) (then restart the shell)
   * `nvm install --lts`
   * `nvm use --lts`
+* JSON/JSONC LSP (`jsonls`) requires `vscode-json-language-server`:
+  `npm install -g vscode-langservers-extracted`
 * Some language parsers for `tree-sitter` need to be built from language
   definitions via the `tree-sitter-cli`. See
   [https://tree-sitter.github.io/tree-sitter/creating-parsers#installation]
