@@ -16,6 +16,8 @@ return {
         'git_config', 'git_rebase', 'gitattributes', 'gitignore', 'gitcommit',
       }
       local indent_disabled = {
+        latex = true,
+        bibtex = true,
         markdown = true,
         markdown_inline = true,
       }
