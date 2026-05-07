@@ -4,6 +4,7 @@ local sn = ls.snippet_node
 local t = ls.text_node
 local i = ls.insert_node
 local c = ls.choice_node
+local ps = ls.parser.parse_snippet
 local fmta = require('luasnip.extras.fmt').fmta
 local rep = require('luasnip.extras').rep
 
@@ -49,12 +50,15 @@ return {
   s({ trig = 'Big[' }, fmta('\\Big[ <> \\Big]', { dyn_sel(1) })),
   s({ trig = 'Big{' }, fmta('\\Big\\{ <> \\Big\\}', { dyn_sel(1) })),
 
+  s({ trig = 'lr(' }, fmta('\\left( <> \\right)', { dyn_sel(1) })),
+  s({ trig = 'lr[' }, fmta('\\left[ <> \\right]', { dyn_sel(1) })),
+  s({ trig = 'lr{' }, fmta('\\left\\{ <> \\right\\}', { dyn_sel(1) })),
   s({ trig = 'lr<' }, fmta('\\langle <> \\rangle', { dyn_sel(1) })),
 
   s({ trig = 'fr', desc = '\\frac{}{}' }, fmta('\\frac{<>}{<>}', {
     dyn_sel(1), i(2)
   })),
-
+  ps('pd', [[\frac{\partial $1}{\partial $2}]]),
   s({ trig = 'tfr', desc = '\\tfrac{}{}' }, fmta('\\tfrac{<>}{<>}', {
     dyn_sel(1), i(2)
   })),
@@ -76,5 +80,19 @@ return {
       <>
     \end{equation*}
   ]], { dyn_sel(1) }, { indent_string = '  ' })),
+
+  ps('oo', [[\infty$0]]),
+  ps('ref', [[\ref{$1}]]),
+  ps('sref', [[Sec.~\ref{sec:$1}$0]]),
+  ps('ssref', [[Sec.~\ref{sub:$1}$0]]),
+  ps('eqref', [[Eq.~\eqref{eq:$1}]]),
+  ps('eref', [[\eqref{eq:$1}]]),
+  ps('fref', [[Fig.~\ref{fig:$1}]]),
+  ps('tref', [[Tab.~\ref{tab:$1}]]),
+  ps('cite', [[\\cite{$1}$0]]),
+  ps('l', [[\label{$1}$0]]),
+
+  ps('Cont', [[\State {\bfseries continue}$0]]),
+  ps('Break', [[\State {\bfseries break}$0]]),
 
 }

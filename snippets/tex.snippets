@@ -8,10 +8,6 @@ snippet newenv "Define a new environment"
 	}
 
 
-snippet oo "\infty"
-	\infty$0
-
-
 snippet fig2 "2 figures side by side (subfigure)"
 	\begin{figure}${1:[tpb]}\centering%
 		\subfigure[]{%
@@ -52,48 +48,6 @@ snippet if "if... then... else..."
 	}{${5:%
 		ifno
 	}}
-
-
-snippet ref "Reference"
-	\ref{$1}
-
-
-snippet sref "Sec.~\ref{sec:...} -> Sec.~IV"
-	Sec.~\ref{sec:$1}$0
-
-snippet ssref "Sec.~\ref{sub:...} -> Sec.~IV.A"
-	Sec.~\ref{sub:$1}$0
-
-
-#\eqref{eq:$1}$0
-snippet eqref "Reference equation Eq.~(1)"
-	Eq.~\eqref{eq:$1}
-
-
-snippet eref "Reference equation (1)"
-	\eqref{eq:$1}
-
-
-snippet enref "\eqnref{eq:...} -> equation (2.1)"
-	\eqnref{eq:$1}$0
-
-
-#\figref{fig:$1}$0
-snippet fref "Reference figure"
-	Fig.~\ref{fig:$1}
-
-
-#\tabref{tab:$1}$0
-snippet tref "Refernce table"
-	Tab.~\ref{tab:$1}
-
-
-snippet cite "\autocite[]{}"
-	\\${1:auto}cite${3:[]}{$2}$0
-
-
-snippet l "\label{}"
-	\label{$1}$0
 
 
 ###############################
@@ -248,89 +202,6 @@ snippet rem "Remark"
 	\end{rem}
 
 
-snippet S "Surf"
-	$\Surf$$0
-
-snippet Sout "S_outer"
-	$\Sout$$0
-
-snippet Sin "S_inner"
-	$\Sin$$0
-
-snippet S1 "S_{1}"
-	$\Sone$$0
-
-snippet S2 "S_{2}"
-	$\Stwo$$0
-
-snippet S12 "S_{1,2}"
-	$\Sonetwo$$0
-
-snippet Hout "H_outer"
-	$\Hout$$0
-
-snippet Hin "H_inner"
-	$\Hin$$0
-
-snippet H1 "H_{1}"
-	$\Hone$$0
-
-snippet H2 "H_{2}"
-	$\Htwo$$0
-
-snippet H12 "H_{1,2}"
-	$\Honetwo$$0
-
-snippet ttouch "T_touch"
-	$\ttouch$$0
-
-snippet T- "$\Theta_{-}$"
-	$\Theta_{-}$$0
-
-snippet T-m "\Theta_{-}"
-	\Theta_{-}$0
-
-snippet T+ "$\Theta_{+}$"
-	$\Theta_{+}$$0
-
-snippet T+m "\Theta_{+}"
-	\Theta_{+}$0
-
-snippet T+- "$\Theta_{+-}$"
-	$\Theta_{\pm}$$0
-
-snippet T+-m "\Theta_{+-}"
-	\Theta_{\pm}$0
-
-snippet Tn "$\Theta_{(n)}$"
-	$\Theta_{(n)}$$0
-
-snippet Tl "$\Theta_{(ell)}$"
-	$\Theta_{(\ell)}$$0
-
-snippet 4n "4-nabla"
-	{}^{(4)}\nabla$0
-
-
-snippet L "$\BW$"
-	$\Lambda$$0
-
-snippet AE9 "$\AEnine$"
-	$\AEnine$$0
-
-snippet K12 "$\Ktwelve$"
-	$\Ktwelve$$0
-
-snippet lK12 "laminated $\Ktwelve$"
-	laminated $\Ktwelve$$0
-
-snippet LK12 "Laminated $\Ktwelve$"
-	Laminated $\Ktwelve$$0
-
-snippet BW "$\BW$"
-	$\BW$$0
-
-
 snippet Proc "Pseudocode procedure"
 	\Procedure{${1:Name}}{${2:args}}
 		${3:${VISUAL:\\State}}
@@ -341,12 +212,6 @@ snippet St "Pseudocode statement"
 
 snippet Ret "Pseudocode return"
 	\State \Return ${1:${VISUAL:...}}
-
-snippet Cont "Pseudocode continue"
-	\State {\bfseries continue}$0
-
-snippet Break "Pseudocode break"
-	\State {\bfseries break}$0
 
 snippet gets "Pseudocode assignment"
 	\State ${1:\$x\$} \$\gets\$ ${2:${VISUAL:something}}
