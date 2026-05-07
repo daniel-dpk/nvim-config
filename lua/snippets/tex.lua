@@ -81,6 +81,103 @@ return {
     \end{equation*}
   ]], { dyn_sel(1) }, { indent_string = '  ' })),
 
+  s({ trig = 'subeq', desc = 'subequations' }, fmta([[
+    \begin{subequations}\label{eq:<>}
+      \begin{align}
+        \label{eq:<>_<>}
+        <>
+      \end{align}
+    \end{subequations}
+  ]], {
+    i(1, 'TODO'),
+    rep(1),
+    i(2, 'TODO'),
+    dyn_sel(3),
+  }, { indent_string = '  ' })),
+
+  s({ trig = 'ali', desc = '\\begin{align(ed)}' }, fmta([[
+    \begin{align<>}
+      <>
+    \end{align<>}
+  ]], { i(1, 'ed'), dyn_sel(2), rep(1) }, { indent_string = '  ' })),
+
+  s({ trig = 'cha', desc = 'Chapter' }, fmta([[
+    \chapter{<>}
+  ]], { dyn_sel(1, 'Chapter Name') })),
+
+  s({ trig = 'sec', desc = 'Section' }, fmta([[
+    \section{<>}
+  ]], { dyn_sel(1, 'Section Name') })),
+
+  s({ trig = 'sub', desc = 'Subsection' }, fmta([[
+    \subsection{<>}
+  ]], { dyn_sel(1, 'Subsection Name') })),
+
+  s({ trig = 'ssub', desc = 'Subsubsection' }, fmta([[
+    \subsubsection{<>}
+  ]], { dyn_sel(1, 'Subsubsection Name') })),
+
+  s({ trig = 'sub*', desc = 'Subsection w/o number' }, fmta([[
+    \subsection*{<>}
+  ]], { dyn_sel(1) })),
+
+  s({ trig = 'ssub*', desc = 'Subsubsection w/o number' }, fmta([[
+    \subsubsection*{<>}
+  ]], { dyn_sel(1) })),
+
+  s({ trig = 'par', desc = 'Paragraph head' }, fmta([[
+    \paragraph{<>}
+  ]], { dyn_sel(1) })),
+
+  s({ trig = 'frame', desc = 'beamer frame' }, fmta([[
+    \begin{frame}\frametitle{<>} % {{{2
+      <>
+    \end{frame}
+    %\endinput % skip the remainder of this file
+  ]], { i(1, 'title'), dyn_sel(2, 'content') }, { indent_string = '  ' })),
+
+  s({ trig = 'tikz', desc = 'TikZ picture' }, fmta([[
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[xshift=0em,yshift=0em,anchor=south west] at (current page.south west) {
+        <>
+      };
+    \end{tikzpicture}
+  ]], { dyn_sel(1, '...') }, { indent_string = '  ' })),
+
+  s({ trig = 'cols', desc = 'columns (beamer)' }, fmta([[
+    \begin{columns}
+      \column{0.5\textwidth}
+        <>
+      \column{0.5\textwidth}
+    \end{columns}
+  ]], { dyn_sel(1, 'content') }, { indent_string = '  ' })),
+
+  s({ trig = 'def', desc = 'Definition' }, fmta([[
+    \begin{defn}[<>]\label{def:<>}
+      <>
+    \end{defn}
+  ]], {
+    i(1, 'Item'),
+    i(2, 'todo'),
+    dyn_sel(3, '...'),
+  }, { indent_string = '  ' })),
+
+  s({ trig = 'thm', desc = 'Theorem' }, fmta([[
+    \begin{thm}[<>]\label{thm:<>}
+      <>
+    \end{thm}
+  ]], {
+    i(1, 'Item'),
+    i(2, 'todo'),
+    dyn_sel(3, '...'),
+  }, { indent_string = '  ' })),
+
+  s({ trig = 'rem', desc = 'Remark' }, fmta([[
+    \begin{rem}
+      <>
+    \end{rem}
+  ]], { dyn_sel(1, '...') }, { indent_string = '  ' })),
+
   ps('oo', [[\infty$0]]),
   ps('ref', [[\ref{$1}]]),
   ps('sref', [[Sec.~\ref{sec:$1}$0]]),
@@ -91,6 +188,50 @@ return {
   ps('tref', [[Tab.~\ref{tab:$1}]]),
   ps('cite', [[\\cite{$1}$0]]),
   ps('l', [[\label{$1}$0]]),
+
+  s({ trig = 'Proc', desc = 'Pseudocode procedure' }, fmta([[
+    \Procedure{<>}{<>}
+      <>
+    \EndProcedure
+  ]], {
+    i(1, 'Name'),
+    i(2, 'args'),
+    dyn_sel(3, [[\State]]),
+  }, { indent_string = '  ' })),
+
+  s({ trig = 'St', desc = 'Pseudocode statement' }, fmta([[
+    \State <>
+  ]], { dyn_sel(1, '...') })),
+
+  s({ trig = 'Ret', desc = 'Pseudocode return' }, fmta([[
+    \State \Return <>
+  ]], { dyn_sel(1, '...') })),
+
+  s({ trig = 'gets', desc = 'Pseudocode assignment' }, fmta([[
+    \State <> $\gets$ <>
+  ]], { i(1, '$x$'), dyn_sel(2, 'something') })),
+
+  s({ trig = 'If', desc = 'Pseudocode if-endif' }, fmta([[
+    \If{<>}
+      <>
+    \EndIf
+  ]], { i(1), dyn_sel(2, [[\State]]) }, { indent_string = '  ' })),
+
+  s({ trig = 'For', desc = 'Pseudocode for-loop' }, fmta([[
+    <>
+      <>
+    \EndFor
+  ]], {
+    c(1, {
+      sn(nil, {
+        t([[\For{$]]),
+        i(1, [[i \gets 1 \text{to} 10]]),
+        t('$}'),
+      }),
+      sn(nil, { t([[\ForAll{$]]), i(1, [[x \in X]]), t('$}') }),
+    }),
+    dyn_sel(2, [[\State]]),
+  }, { indent_string = '  ' })),
 
   ps('Cont', [[\State {\bfseries continue}$0]]),
   ps('Break', [[\State {\bfseries break}$0]]),

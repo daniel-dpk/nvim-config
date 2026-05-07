@@ -81,50 +81,6 @@ snippet tab "table with booktabs rules"
 	\end{tabular$1}
 
 
-snippet subeq "subequations"
-	\begin{subequations}\label{eq:${1:TODO}}
-		\begin{align}
-			\label{eq:$1_${2:TODO}}
-			${3:${VISUAL}}
-		\end{align}
-	\end{subequations}
-
-snippet ali "\begin{align(ed)}"
-	\begin{align${1:ed}}
-		${2:${VISUAL}}
-	\end{align$1}
-
-
-snippet cha "Chapter"
-	\chapter{${1:${VISUAL:Chapter Name}}}
-
-snippet sec "Section"
-	\section{${1:${VISUAL:Section Name}}}
-
-snippet sub "Subsection"
-	\subsection{${1:${VISUAL:Subsection Name}}}
-
-snippet ssub "Subsubsection"
-	\subsubsection{${1:${VISUAL:Subsubsection Name}}}
-
-snippet sub* "Subsection w/o number"
-	\subsection*{${1:${VISUAL}}}
-
-snippet ssub* "Subsubsection w/o number"
-	\subsubsection*{${1:${VISUAL}}}
-
-snippet par "Paragraph head"
-	\paragraph{${1:${VISUAL}}}
-
-
-# TODO: Port to Lua and fill in title
-snippet frame "beamer frame"
-	\begin{frame}\frametitle{${1:title}} % {{{2
-		${2:${VISUAL:content}}
-	\end{frame}
-	%\endinput % skip the remainder of this file
-
-
 snippet vframe "fullscreen video frame"
 	\begin{frame}[plain] \def\myvideofile{videos/${1:video}} % {{{2
 		\centering
@@ -158,14 +114,6 @@ snippet source "source reference (TikZ)"
 	\end{tikzpicture}
 
 
-snippet tikz "TikZ picture"
-	\begin{tikzpicture}[remember picture,overlay]
-		\node[xshift=0em,yshift=0em,anchor=south west] at (current page.south west) {
-			${1:${VISUAL:...}}
-		};
-	\end{tikzpicture}
-
-
 snippet inc "\includegraphics{...}"
 	\includegraphics[width=${2:0.5}\linewidth,valign=t]{${1:imagefile}}
 
@@ -176,57 +124,3 @@ snippet bibi "beamer bibitem"
 		$1
 		\newblock {\em ${3:title}}.
 		\newblock ${4:details}.
-
-
-snippet cols "columns (beamer)"
-	\begin{columns}
-		\column{0.5\textwidth}
-			${1:${VISUAL:content}}
-		\column{0.5\textwidth}
-	\end{columns}
-
-
-snippet def "Definition"
-	\begin{defn}[${1:Item}]\label{def:${2:todo}}
-		${3:${VISUAL:...}}
-	\end{defn}
-
-snippet thm "Theorem"
-	\begin{thm}[${1:Item}]\label{thm:${2:todo}}
-		${3:${VISUAL:...}}
-	\end{thm}
-
-snippet rem "Remark"
-	\begin{rem}
-		${1:${VISUAL:...}}
-	\end{rem}
-
-
-snippet Proc "Pseudocode procedure"
-	\Procedure{${1:Name}}{${2:args}}
-		${3:${VISUAL:\\State}}
-	\EndProcedure
-
-snippet St "Pseudocode statement"
-	\State ${1:${VISUAL:...}}
-
-snippet Ret "Pseudocode return"
-	\State \Return ${1:${VISUAL:...}}
-
-snippet gets "Pseudocode assignment"
-	\State ${1:\$x\$} \$\gets\$ ${2:${VISUAL:something}}
-
-snippet If "Pseudocode if-endif"
-	\If{$1}
-		${2:${VISUAL:\\State}}
-	\EndIf
-
-snippet For "Pseudocode for-loop"
-	\For{\$${1:i \\gets 1 \\text\{to\} 10}\$}
-		${2:${VISUAL:\\State}}
-	\EndFor
-
-snippet For "Pseudocode for-all-loop"
-	\ForAll{\$${1:x \\in X}\$}
-		${2:${VISUAL:\\State}}
-	\EndFor
