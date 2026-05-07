@@ -20,8 +20,21 @@ return {
       })
 
       vim.keymap.set('i', '<C-j>', function()
+        if not ls.expandable() then
+          return
+        end
+
+        local cmp = require('blink.cmp')
+        if cmp.is_visible() then
+          cmp.cancel({
+            callback = function()
+              ls.expand({})
+            end,
+          })
+          return
+        end
+
         ls.expand({})
-        require('blink.cmp')['hide']()
       end, { silent = true, desc = 'Snippet: expand' })
 
       vim.keymap.set({ 'i', 's' }, '<C-l>', function()
