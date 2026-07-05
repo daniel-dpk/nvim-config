@@ -1,7 +1,6 @@
 local M = {
   _cfg = {
     output = 'append',
-    debug = false,
   },
 }
 
@@ -20,20 +19,6 @@ local function factorial(n)
     result = result * i
   end
   return result
-end
-
-local function debug_log(...)
-  if not M._cfg.debug then return end
-  local parts = { '[calc-debug]' }
-  for i = 1, select('#', ...) do
-    local value = select(i, ...)
-    if type(value) == 'table' then
-      parts[#parts + 1] = vim.inspect(value)
-    else
-      parts[#parts + 1] = tostring(value)
-    end
-  end
-  print(table.concat(parts, ' '))
 end
 
 local math_aliases = {
@@ -116,57 +101,17 @@ local eval_env = setmetatable({}, {
 
 local valid_char_pattern = '[%w_%s%.%+%-%*%/%^%(%)%,]'
 
-local float_hint_patterns = {
-  'asin',
-  'acos',
-  'atan',
-  'atan2',
-  'cos',
-  'cosh',
-  'deg',
-  'exp',
-  'log',
-  'log10',
-  'pi',
-  'rad',
-  'sin',
-  'sinh',
-  'sqrt',
-  'tan',
-  'tanh',
-}
-
 local function preprocess(expr)
   expr = expr:gsub('%*%*', '^')
   return expr
 end
 
-local function should_force_decimal(expr_hint)
-  if not expr_hint or expr_hint == '' then return false end
-  local lowered = expr_hint:lower()
-  for _, pat in ipairs(float_hint_patterns) do
-    if lowered:find(pat, 1, true) then return true end
-  end
-  return false
-end
-
-local function format_result(result, expr_hint)
+local function format_result(result)
   if type(result) == 'number' then
     if result == math.huge or result == -math.huge or result ~= result then
       return tostring(result)
     end
-    local formatted = string.format('%.17g', result)
-    if formatted:match('^%-?%d+$') then
-      if should_force_decimal(expr_hint) then
-        return formatted .. '.0'
-      end
-      return formatted
-    end
-    if formatted:find('%.') then
-      formatted = formatted:gsub('0+$', '')
-      formatted = formatted:gsub('%.$', '.0')
-    end
-    return formatted
+    return string.format('%.17g', result)
   end
   return tostring(result)
 end
@@ -195,13 +140,10 @@ end
 
 local function get_visual_selection()
   local mode = vim.fn.mode()
-  local visual_mode = vim.fn.visualmode()
-  debug_log('visual mode evaluate: current mode', mode, 'visualmode', visual_mode)
 
   local bufnr = vim.api.nvim_get_current_buf()
   local start_pos = vim.fn.getpos('v')
   local cursor_pos = vim.fn.getpos('.')
-  debug_log('visual mode evaluate: raw marks', { start = start_pos, cursor = cursor_pos })
 
   local start_row = start_pos[2]
   local start_col = start_pos[3]
@@ -209,12 +151,10 @@ local function get_visual_selection()
   local end_col = cursor_pos[3]
 
   if start_row == 0 or end_row == 0 then
-    debug_log('visual mode evaluate: marks missing, aborting')
     return nil
   end
 
   if start_row > end_row or (start_row == end_row and start_col > end_col) then
-    debug_log('visual mode evaluate: swapping marks', start_row, start_col, end_row, end_col)
     start_row, end_row = end_row, start_row
     start_col, end_col = end_col, start_col
   end
@@ -227,27 +167,20 @@ local function get_visual_selection()
     start_col = 0
     end_col = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1]
     end_col = #(end_col or '')
-    debug_log('visual mode evaluate: line-wise selection detected, updated range', start_row, start_col, end_row, end_col)
   else
     end_col = math.max(end_col, start_col + 1)
   end
 
-  debug_log('visual mode evaluate: adjusted start/end (0-index)', start_row, start_col, end_row, end_col)
-
   local last_line = vim.api.nvim_buf_get_lines(bufnr, end_row, end_row + 1, true)[1] or ''
   end_col = math.min(end_col, #last_line)
-  debug_log('visual mode evaluate: clamped end_col', end_col, 'line length', #last_line)
 
   local lines = vim.api.nvim_buf_get_text(bufnr, start_row, start_col, end_row, end_col, {})
-  debug_log('visual mode evaluate: extracted lines', lines)
   if #lines == 0 then
-    debug_log('visual mode evaluate: no lines captured')
     return nil
   end
 
   if #lines > 1 then
     notify_error('calc visual evaluation supports single-line selections only')
-    debug_log('visual mode evaluate: multi-line selection rejected')
     return nil
   end
 
@@ -262,10 +195,8 @@ local function get_visual_selection()
     expr = vim.trim(raw),
     indent = raw:match('^%s*') or '',
   }
-  debug_log('visual mode evaluate: final selection', selection)
 
   if mode == 'v' or mode == 'V' or mode == '\022' or mode == 's' or mode == 'S' or mode == '\019' then
-    debug_log('visual mode evaluate: leaving selection mode after capture')
     vim.cmd("normal! \\<Esc>")
   end
 
@@ -377,7 +308,7 @@ function M.evaluate_visual(opts)
     return
   end
   local mode = normalize_output_mode(opts)
-  apply_visual_result(selection, format_result(result, expr), mode)
+  apply_visual_result(selection, format_result(result), mode)
 end
 
 function M.evaluate_line(opts)
@@ -397,7 +328,7 @@ function M.evaluate_line(opts)
     return
   end
   local mode = normalize_output_mode(opts)
-  apply_line_result(bufnr, row, info, format_result(result, info.expr), mode)
+  apply_line_result(bufnr, row, info, format_result(result), mode)
 end
 
 function M.setup(opts)

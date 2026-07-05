@@ -20,6 +20,9 @@ Modern Neovim config in Lua using lazy.nvim for IDE-like experience.
 - modules return a table (`return { ... }`)
 - require modules with dot notation
 
+## Testing
+Tests reside in `tests/` and are run via `nvim --headless -u NONE -i NONE -n -l tests/run.lua`.
+
 ## Naming
 - files & dirs snake_case
 - variables & functions lower_snake_case

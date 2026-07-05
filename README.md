@@ -119,6 +119,13 @@ of this repo or keep `nvim-treesitter` on its legacy `master` branch instead of
 using the current setup.
 
 
+## Running tests
+
+```
+nvim --headless -u NONE -i NONE -n -l tests/run.lua
+```
+
+
 ## Troubleshooting
 
 ### Some things don't work inside tmux
