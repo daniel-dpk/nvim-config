@@ -26,7 +26,21 @@ return {
 
       -- Statusline replacement
       local statusline = require('mini.statusline')
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+
+      function statusline.section_filename()
+        if vim.bo.buftype == 'terminal' then return '%t' end
+
+        return '%f%m%r'
+      end
+
+      statusline.setup {
+        content = {
+          inactive = function()
+            return '%#MiniStatuslineInactive#%f%='
+          end,
+        },
+        use_icons = vim.g.have_nerd_font,
+      }
 
       require('mini.align').setup()
     end,
