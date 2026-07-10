@@ -27,16 +27,30 @@ return {
       -- Statusline replacement
       local statusline = require('mini.statusline')
 
-      function statusline.section_filename()
+      local function cwd_relative_filename()
         if vim.bo.buftype == 'terminal' then return '%t' end
+        if vim.bo.buftype ~= '' then return '%f' end
 
-        return '%f%m%r'
+        local name = vim.api.nvim_buf_get_name(0)
+        if name == '' then return '%f' end
+        if name:match('^%a[%w+.-]*://') ~= nil then return '%f' end
+
+        local cwd = vim.fs.normalize(vim.fn.getcwd())
+        local absolute = vim.fs.normalize(vim.fn.fnamemodify(name, ':p'))
+        local relative = vim.fs.relpath(cwd, absolute)
+        local filename = relative or vim.fn.fnamemodify(name, ':~')
+
+        return filename:gsub('%%', '%%%%')
+      end
+
+      function statusline.section_filename()
+        return cwd_relative_filename() .. '%m%r'
       end
 
       statusline.setup {
         content = {
           inactive = function()
-            return '%#MiniStatuslineInactive#%f%='
+            return '%#MiniStatuslineInactive#' .. cwd_relative_filename() .. '%='
           end,
         },
         use_icons = vim.g.have_nerd_font,
