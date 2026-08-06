@@ -23,6 +23,15 @@ return {
           ['<F12>'] = 'close_window',
           ['o'] = 'toggle_node',
           ['O'] = 'expand_all_subnodes',
+          ['Y'] = {
+            function(state)
+              local node = state.tree:get_node()
+              local path = vim.fn.fnamemodify(node.path, ':~')
+              vim.fn.setreg('+', path)
+              vim.notify('Copied: ' .. path)
+            end,
+            desc = 'Copy path',
+          },
           -- disable o* mappings
           ['oc'] = 'noop',
           ['od'] = 'noop',
