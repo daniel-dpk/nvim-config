@@ -78,6 +78,14 @@ end, { desc = '[C]opy line' })
 
 vim.keymap.set('x', '<LocalLeader>c', '"+y', { desc = '[C]opy selection' })
 
+vim.keymap.set({ 'n', 'x' }, '<Leader>yr', function()
+  require('utils.file_context').yank(false)
+end, { desc = 'Copy file location' })
+
+vim.keymap.set({ 'n', 'x' }, '<Leader>yR', function()
+  require('utils.file_context').yank(true)
+end, { desc = 'Copy file location and code' })
+
 -- Delete without yanking
 vim.keymap.set({ 'n', 'x' }, '<Leader>d', '"_d', { desc = '[D]elete (no yanking)' })
 
